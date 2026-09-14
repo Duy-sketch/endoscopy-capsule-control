@@ -1,3 +1,4 @@
+"""
 DEMA-MCE magnetic capsule control simulation.
 
 This package contains:
@@ -5,4 +6,5 @@ This package contains:
 - capsule/fluid dynamics
 - control algorithms
 - sensing models
-- MuJoCo simulation utilities
+- MuJoCo simulation utilitie
+"""
