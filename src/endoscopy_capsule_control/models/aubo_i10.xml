@@ -1,0 +1,651 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="aubo_i10_DEMA_MCE_FLUID_v1">
+  <compiler angle="radian" meshdir="assets" autolimits="true"/>
+  <option timestep="0.001" gravity="0 0 -9.81" integrator="implicitfast"/>
+
+  <visual>
+    <quality shadowsize="4096"/>
+    <headlight ambient="0.35 0.35 0.35"
+               diffuse="0.65 0.65 0.65"
+               specular="0.20 0.20 0.20"/>
+  </visual>
+  <default>
+    <joint type="hinge" axis="0 0 1" limited="true" range="-3.04 3.04" damping="1.0" armature="0.02"/>
+    <geom type="mesh" contype="0" conaffinity="0" group="1"/>
+  </default>
+  <asset>
+    <!-- Sky/background -->
+    <texture name="skybox"
+             type="skybox"
+             builtin="gradient"
+             rgb1="0.55 0.70 0.90"
+             rgb2="0.08 0.10 0.14"
+             width="512"
+             height="3072"/>
+
+    <!-- Checker floor -->
+    <texture name="ground_tex"
+             type="2d"
+             builtin="checker"
+             mark="edge"
+             rgb1="0.32 0.36 0.40"
+             rgb2="0.18 0.21 0.24"
+             markrgb="0.80 0.80 0.80"
+             width="512"
+             height="512"/>
+
+    <!-- reflectance = mirror-like floor reflection -->
+    <material name="ground_mat"
+              texture="ground_tex"
+              texuniform="true"
+              texrepeat="6 6"
+              reflectance="0.25"
+              shininess="0.35"
+              specular="0.45"/>
+
+    <mesh name="base_link_mesh" file="aubo_i10/collision/link0.STL"/>
+    <material name="base_link_mat" rgba="0.75 0.75 0.78 1"/>
+    <mesh name="shoulder_Link_mesh" file="aubo_i10/collision/link1.STL"/>
+    <material name="shoulder_Link_mat" rgba="0.90 0.92 0.93 1"/>
+    <mesh name="upperArm_Link_mesh" file="aubo_i10/collision/link2.STL"/>
+    <material name="upperArm_Link_mat" rgba="0.90 0.92 0.93 1"/>
+    <mesh name="foreArm_Link_mesh" file="aubo_i10/collision/link3.STL"/>
+    <material name="foreArm_Link_mat" rgba="0.78 0.78 0.80 1"/>
+    <mesh name="wrist1_Link_mesh" file="aubo_i10/collision/link4.STL"/>
+    <material name="wrist1_Link_mat" rgba="0.78 0.78 0.80 1"/>
+    <mesh name="wrist2_Link_mesh" file="aubo_i10/collision/link5.STL"/>
+    <material name="wrist2_Link_mat" rgba="0.78 0.78 0.80 1"/>
+    <mesh name="wrist3_Link_mesh" file="aubo_i10/collision/link6.STL"/>
+    <material name="wrist3_Link_mat" rgba="0.78 0.78 0.80 1"/>
+
+    <!-- DEMA materials -->
+    <material name="dema_mount_mat" rgba="0.22 0.22 0.24 1"/>
+    <material name="dema_core_mat"  rgba="0.10 0.12 0.14 1"/>
+    <material name="dema_copper_mat" rgba="0.72 0.31 0.10 1"/>
+    <material name="dema_frame_mat" rgba="0.62 0.64 0.68 1"/>
+
+    <!-- MCE / control-particle materials -->
+    <material name="mce_shell_mat"
+              rgba="0.18 0.55 0.92 0.72"
+              specular="0.35"
+              shininess="0.25"/>
+
+    <material name="mce_magnet_marker_mat"
+              rgba="0.12 0.12 0.14 1"/>
+
+    <material name="nonmag_bead_mat"
+              rgba="0.85 0.82 0.20 1"
+              specular="0.25"
+              shininess="0.20"/>
+
+    <!-- Visual-only representation of the silicone-oil tank.
+         Fluid forces are computed in Python, not by this geom. -->
+    <material name="fluid_visual_mat"
+              rgba="0.12 0.42 0.85 0.08"
+              specular="0.15"
+              shininess="0.10"/>
+  </asset>
+
+  <!-- ======================================================
+       DEMA PHYSICAL / DESIGN PARAMETERS FROM THE PAPER
+
+       IMPORTANT:
+       MuJoCo does NOT solve electromagnetics. These values are stored
+       explicitly so that the Python magnetic model / future FEM model
+       can use the real design parameters.
+
+       Optimized configuration:
+         phi = 30 deg
+         W1 = 7.5 mm
+         W2 = 6.0 mm
+         W3 = 9.0 mm
+         turns = 736 per electromagnet
+         copper wire diameter = 1.5 mm
+         maximum current = 20 A per electromagnet
+         Vacoflux core radius = 11 mm
+         Vacoflux core length = 125 mm
+         Vacoflux core mass = 0.4 kg
+         aluminium-frame gap w = 2 mm
+         maximum winding length L0 = 130 mm
+
+       Hq = Wq*cot(phi/2) is also stored below for the stepped visual
+       envelope. Rendering the 736 individual wire turns is intentionally
+       avoided: N=736 belongs in the magnetic physics, not as 736 MuJoCo
+       collision geoms.
+       ====================================================== -->
+  <custom>
+    <numeric name="dema_phi_deg" data="30"/>
+    <numeric name="dema_phi_rad" data="0.523598775598299"/>
+
+    <numeric name="em_turns" data="736"/>
+    <numeric name="em_wire_diameter_m" data="0.0015"/>
+    <numeric name="em_max_current_A" data="20"/>
+
+    <numeric name="em_core_radius_m" data="0.011"/>
+    <numeric name="em_core_length_m" data="0.125"/>
+    <numeric name="em_core_mass_kg" data="0.4"/>
+
+    <numeric name="em_frame_gap_m" data="0.002"/>
+    <numeric name="em_winding_L0_m" data="0.130"/>
+
+    <numeric name="em_W1_m" data="0.0075"/>
+    <numeric name="em_W2_m" data="0.0060"/>
+    <numeric name="em_W3_m" data="0.0090"/>
+
+    <numeric name="em_H1_m" data="0.027990381056767"/>
+    <numeric name="em_H2_m" data="0.022392304845413"/>
+    <numeric name="em_H3_m" data="0.033588457268120"/>
+
+    <!-- Current XY baseline values; not a physical limitation -->
+    <numeric name="em1_current_baseline_A" data="10"/>
+    <numeric name="em2_current_baseline_A" data="10"/>
+
+
+    <!-- ==================================================
+         MCE PARAMETERS
+
+         Fig. 1 of the paper labels the prototype outer size:
+             length   = 30 mm
+             diameter = 11.4 mm
+
+         The paper states an MCE weight of approximately 7.6 g
+         as the design lifting requirement.
+
+         For THIS simulation the user requested 7.0 g, therefore:
+             paper reference mass = 7.6 g
+             simulated mass       = 7.0 g
+
+         The paper defines the internal permanent-magnet moment M
+         in the magnetic equations, but the numerical value of M
+         is not specified in the paper text. Therefore no physical
+         magnetic moment is hard-coded into the MJCF.
+         ================================================== -->
+    <numeric name="paper_mce_length_m" data="0.030"/>
+    <numeric name="paper_mce_diameter_m" data="0.0114"/>
+    <numeric name="paper_mce_mass_kg" data="0.0076"/>
+    <numeric name="simulation_mce_mass_kg" data="0.0070"/>
+
+    <!-- Test-only magnetic parameters; NOT paper-identified values -->
+    <numeric name="test_capsule_magnetic_moment_Am2" data="0.05"/>
+    <numeric name="test_em_effective_dipole_gain_Am2_per_A" data="1.0"/>
+
+
+    <!-- Fluid used in the paper's closed-loop tank experiment:
+         KF-96-100cs silicone oil.
+         The paper gives 100 cs; density is supplied in Python from
+         Shin-Etsu product data so dynamic viscosity can be computed. -->
+    <numeric name="paper_fluid_kinematic_viscosity_m2_per_s" data="0.0001"/>
+  </custom>
+
+  <worldbody>
+    <!-- Ground plane -->
+    <geom name="ground"
+          type="plane"
+          pos="0 0 0"
+          size="0 0 0.05"
+          material="ground_mat"
+          contype="1"
+          conaffinity="1"/>
+
+    <!-- Main light with shadow -->
+    <light name="sun"
+           directional="true"
+           pos="1.5 -1.5 3.5"
+           dir="-0.35 0.30 -1"
+           diffuse="0.85 0.85 0.85"
+           specular="0.30 0.30 0.30"
+           castshadow="true"/>
+
+    <!-- Fill light -->
+    <light name="fill_light"
+           directional="false"
+           pos="-1.5 1.0 2.2"
+           diffuse="0.35 0.35 0.38"
+           specular="0.08 0.08 0.08"
+           castshadow="false"/>
+
+    <camera name="overview"
+            pos="2.2 -2.2 1.55"
+            xyaxes="0.707107 0.707107 0 -0.408248 0.408248 0.816497"/>
+    <body name="base_link" pos="0 0 0" quat="1 0 0 0">
+      <inertial pos="-2.7535e-06 0.00054789 0.02299" mass="1.2345" fullinertia="0.0029215 0.0028546 0.0051176 2.2046e-07 -3.4773e-08 -7.6362e-06"/>
+      <geom name="base_link_visual" mesh="base_link_mesh" material="base_link_mat"/>
+      <body name="shoulder_Link" gravcomp="1" pos="0 0 0.1632" quat="-3.67320510335e-06 0 -4.3569e-17 0.999999999993">
+        <inertial pos="0.00029287 0.14173 0.54281" mass="10.994" fullinertia="2.2088 2.1473 0.07998 -0.00043922 -0.0025417 -0.049088"/>
+        <joint name="shoulder_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04"/>
+        <geom name="shoulder_Link_visual" mesh="shoulder_Link_mesh" material="shoulder_Link_mat"/>
+        <body name="upperArm_Link" gravcomp="1" pos="0 0.2013 0" quat="0.499998163397 -0.499999999997 -0.499999999997 -0.500001836603">
+          <inertial pos="0.31908 -3.7071e-06 -0.0042956" mass="5.3139" fullinertia="0.0095171 0.11411 0.11411 7.2849e-06 -6.7014e-06 -1.1529e-06"/>
+          <joint name="upperArm_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04"/>
+          <geom name="upperArm_Link_visual" mesh="upperArm_Link_mesh" material="upperArm_Link_mat"/>
+          <body name="foreArm_Link" gravcomp="1" pos="0.647 0 0" quat="-3.67320510335e-06 0.999999999993 -4.21639e-17 2.29772e-17">
+            <inertial pos="0.24431 6.6794e-06 0.12549" mass="3.1022" fullinertia="0.0027288 0.097825 0.097866 -6.2713e-06 -0.0018082 3.5731e-07"/>
+            <joint name="foreArm_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04"/>
+            <geom name="foreArm_Link_visual" mesh="foreArm_Link_mesh" material="foreArm_Link_mat"/>
+            <body name="wrist1_Link" gravcomp="1" pos="0.6005 0 0" quat="-2.59734346646e-06 -0.707105482506 -0.707108079855 -2.59735300806e-06">
+              <inertial pos="5.2305e-07 0.00026581 -0.0027894" mass="0.57981" fullinertia="0.00088336 0.00046118 0.00085336 -6.425e-09 5.1594e-09 -1.0734e-06"/>
+              <joint name="wrist1_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04"/>
+              <geom name="wrist1_Link_visual" mesh="wrist1_Link_mesh" material="wrist1_Link_mat"/>
+              <body name="wrist2_Link" gravcomp="1" pos="0 0.1025 0" quat="0.707105482511 -0.707108079859 1.17531e-17 -5.12221e-16">
+                <inertial pos="-5.2305e-07 -0.00026581 -0.0027894" mass="0.57981" fullinertia="0.00088336 0.00046118 0.00085336 -6.4251e-09 -5.1594e-09 1.0734e-06"/>
+                <joint name="wrist2_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04"/>
+                <geom name="wrist2_Link_visual" mesh="wrist2_Link_mesh" material="wrist2_Link_mat"/>
+                <body name="wrist3_Link" gravcomp="1" pos="0 -0.094 0" quat="0.707105482511 0.707108079859 2.37882e-16 2.37881e-16">
+                  <inertial pos="-2.2127e-09 0.00023722 -0.018629" mass="0.13669" fullinertia="6.0946e-05 5.9501e-05 9.6981e-05 9.3663e-12 -1.3841e-12 1.9944e-07"/>
+                  <joint name="wrist3_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04"/>
+                  <geom name="wrist3_Link_visual" mesh="wrist3_Link_mesh" material="wrist3_Link_mat"/>
+                  <site name="wrist3_frame_site"
+                        pos="0 0 0"
+                        size="0.006"
+                        rgba="1 0.2 0.2 1"/>
+
+                  <!-- Provisional flange/tool-face marker -->
+                  <site name="aubo_tool0_provisional"
+                        pos="0 0 0"
+                        size="0.004"
+                        rgba="0.2 1 0.2 1"/>
+
+                  <!-- ==================================================
+                       AUBO i10 -> DEMA rigid attachment
+
+                       Corrected attachment convention:
+
+                       The wrist3_Link mesh occupies approximately the
+                       NEGATIVE local-Z side of the wrist3 frame. Therefore
+                       the wrist3 frame origin (z=0) is used as the current
+                       flange/tool-face reference, and the DEMA extends along
+                       POSITIVE local Z, away from the robot arm.
+
+                       This fixes the previous versions, where DEMA was
+                       attached to z=-31 mm and then flipped, i.e. effectively
+                       placed on the back side of the wrist.
+
+                       If the official AUBO tool0/flange transform is supplied
+                       later, ONLY this body transform needs to be updated.
+                       The internal DEMA geometry and magnetic sites remain
+                       unchanged.
+
+                       DEMA local +Z points outward toward ROI/capsule.
+                       ================================================== -->
+                  <body name="DEMA"
+                        pos="0 0 0"
+                        euler="0 0 0">
+
+                    <!-- This first version is KINEMATIC:
+                         DEMA visual geoms have mass=0 so that uncertain
+                         copper/frame mass does not contaminate robot
+                         dynamics. Exact physical parameters are preserved
+                         in <custom> for the later physics model. -->
+
+                    <site name="DEMA_mount_origin"
+                          pos="0 0 0"
+                          size="0.005"
+                          rgba="0.1 1 0.1 1"/>
+
+                    <!-- Mount plate / adapter -->
+                    <geom name="DEMA_mount_plate"
+                          type="box"
+                          pos="0 0 0.006"
+                          size="0.085 0.045 0.006"
+                          material="dema_mount_mat"
+                          mass="0"
+                          contype="0"
+                          conaffinity="0"/>
+
+                    <!-- DEMA local coordinate-system markers -->
+                    <site name="LCS_origin"
+                          pos="0 0 0.125"
+                          size="0.005"
+                          rgba="0.1 1 0.1 1"/>
+
+                    <site name="LCS_z"
+                          pos="0 0 0.175"
+                          size="0.003"
+                          rgba="0.1 0.8 1 1"/>
+
+                    <!-- Reference point 30 mm beyond the nominal tip plane.
+                         This is only a geometry marker, not a constraint. -->
+                    <site name="ROI_30mm"
+                          pos="0 0 0.155"
+                          size="0.004"
+                          rgba="1 0.2 1 1"/>
+
+                    <!-- ==================================================
+                         ELECTROMAGNET 1
+
+                         Optimized DEMA angle phi=30 deg -> +/-15 deg.
+
+                         EM1 root is on +X and its +Z magnetic/geometric axis
+                         tilts inward toward the DEMA centerline.
+                         ================================================== -->
+                    <body name="EM1"
+                          pos="0.0475 0 0.012"
+                          euler="0 -0.261799387799149 0">
+
+                      <!-- Vacoflux core: radius 11 mm, length 125 mm -->
+                      <geom name="EM1_core"
+                            type="cylinder"
+                            pos="0 0 0.0625"
+                            size="0.011 0.0625"
+                            material="dema_core_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <!-- 2 mm aluminium-frame/gap envelope -->
+                      <geom name="EM1_frame"
+                            type="cylinder"
+                            pos="0 0 0.041992"
+                            size="0.013 0.041992"
+                            material="dema_frame_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <!-- Three-step winding VISUAL envelope.
+                           Exact optimized widths:
+                             W1=7.5mm, W2=6mm, W3=9mm
+                           and phi=30deg.
+                           The true winding count is N=736 and is stored in
+                           <custom>; it is not represented by 736 geoms. -->
+
+                      <!-- Step order corrected to match the paper visually:
+                           largest near the mount/top, then medium, then smallest near the tip/bottom. -->
+
+                      <!-- Step 3 (top / near mount):
+                           outer radius = 13 + 7.5 + 6 + 9 = 35.5 mm
+                           H3 = 33.588 mm -->
+                      <geom name="EM1_coil_step3"
+                            type="cylinder"
+                            pos="0 0 0.016794"
+                            size="0.0355 0.016794228634060"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <!-- Step 2 (middle):
+                           outer radius = 13 + 7.5 + 6 = 26.5 mm
+                           H2 = 22.392 mm -->
+                      <geom name="EM1_coil_step2"
+                            type="cylinder"
+                            pos="0 0 0.044784"
+                            size="0.0265 0.011196152422706"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <!-- Step 1 (bottom / near tip):
+                           outer radius = 13 + 7.5 = 20.5 mm
+                           H1 = 27.990 mm -->
+                      <geom name="EM1_coil_step1"
+                            type="cylinder"
+                            pos="0 0 0.064377"
+                            size="0.0205 0.013995190528384"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <!-- Sites used by the magnetic model -->
+                      <site name="EM1_root"
+                            pos="0 0 0"
+                            size="0.003"
+                            rgba="1 0.7 0.1 1"/>
+
+                      <site name="EM1_center"
+                            pos="0 0 0.0625"
+                            size="0.0035"
+                            rgba="1 0.2 0.2 1"/>
+
+                      <site name="EM1_tip"
+                            pos="0 0 0.125"
+                            size="0.0035"
+                            rgba="1 0.5 0.1 1"/>
+
+                      <site name="EM1_axis"
+                            pos="0 0 0.100"
+                            size="0.0025"
+                            rgba="1 0 0 1"/>
+                    </body>
+
+                    <!-- ==================================================
+                         ELECTROMAGNET 2
+                         Mirror-symmetric to EM1.
+                         ================================================== -->
+                    <body name="EM2"
+                          pos="-0.0475 0 0.012"
+                          euler="0 0.261799387799149 0">
+
+                      <geom name="EM2_core"
+                            type="cylinder"
+                            pos="0 0 0.0625"
+                            size="0.011 0.0625"
+                            material="dema_core_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <geom name="EM2_frame"
+                            type="cylinder"
+                            pos="0 0 0.041992"
+                            size="0.013 0.041992"
+                            material="dema_frame_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <geom name="EM2_coil_step3"
+                            type="cylinder"
+                            pos="0 0 0.016794"
+                            size="0.0355 0.016794228634060"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <geom name="EM2_coil_step2"
+                            type="cylinder"
+                            pos="0 0 0.044784"
+                            size="0.0265 0.011196152422706"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <geom name="EM2_coil_step1"
+                            type="cylinder"
+                            pos="0 0 0.064377"
+                            size="0.0205 0.013995190528384"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="0"
+                            conaffinity="0"/>
+
+                      <site name="EM2_root"
+                            pos="0 0 0"
+                            size="0.003"
+                            rgba="1 0.7 0.1 1"/>
+
+                      <site name="EM2_center"
+                            pos="0 0 0.0625"
+                            size="0.0035"
+                            rgba="1 0.2 0.2 1"/>
+
+                      <site name="EM2_tip"
+                            pos="0 0 0.125"
+                            size="0.0035"
+                            rgba="1 0.5 0.1 1"/>
+
+                      <site name="EM2_axis"
+                            pos="0 0 0.100"
+                            size="0.0025"
+                            rgba="0 0.4 1 1"/>
+                    </body>
+
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <!-- ======================================================
+         VISUAL SILICONE-OIL VOLUME
+
+         This transparent box is ONLY a visual marker.
+         The Python test places it around the initial ROI using mocap.
+         It has no collision and does not generate fluid forces itself.
+         ====================================================== -->
+    <body name="FLUID_VISUAL" mocap="true" pos="0 0 -10">
+      <geom name="FLUID_VISUAL_BOX"
+            type="box"
+            size="0.12 0.12 0.10"
+            material="fluid_visual_mat"
+            mass="0"
+            contype="0"
+            conaffinity="0"
+            group="4"/>
+    </body>
+
+
+    <!-- ======================================================
+         MAGNETIC CAPSULE ENDOSCOPE (MCE)
+
+         Outer dimensions from Fig. 1:
+             total length = 30 mm
+             diameter     = 11.4 mm
+
+         Mass used in this simulation:
+             7.0 g (user-requested)
+
+         Paper reference:
+             approximately 7.6 g
+
+         The free joint lets MuJoCo integrate the full rigid-body
+         translational and rotational dynamics when mj_step() is used.
+
+         No "magnetic material" exists natively in MuJoCo.
+         The Python magnetic model computes F_mag and applies it through
+         data.xfrc_applied[] to this body only.
+         ====================================================== -->
+    <body name="MCE"
+          pos="0.30 0 0.50"
+          quat="0.7071067812 0 0.7071067812 0">
+
+      <freejoint name="MCE_free"/>
+
+      <!-- Exact outer envelope represented as one MuJoCo capsule.
+           size = radius, cylindrical half-length
+           total length = 2*0.0093000 + 2*0.0057000 = 0.030 m -->
+      <geom name="MCE_shell"
+            type="capsule"
+            size="0.0057000 0.0093000"
+            mass="0.007"
+            material="mce_shell_mat"
+            friction="0.4 0.01 0.001"
+            contype="1"
+            conaffinity="1"/>
+
+      <!-- Effective point at which the current magnetic model evaluates
+           the permanent-magnet interaction.
+           The paper shows a magnet inside the capsule, but does not give
+           a numerical magnet size/location/moment in the available text.
+           We therefore keep the effective dipole at the body origin for
+           this force-routing sanity test. -->
+      <site name="MCE_magnetic_center"
+            pos="0 0 0"
+            size="0.0028"
+            rgba="0.1 0.1 0.1 1"/>
+    </body>
+
+
+    <!-- ======================================================
+         NON-MAGNETIC CONTROL BEAD
+
+         This body has a free joint and normal rigid-body mass, but its
+         magnetic moment is defined as exactly zero in the Python test.
+         It can therefore be inside a nonzero B field while F_mag = 0.
+         ====================================================== -->
+    <body name="NONMAG_BEAD"
+          pos="0.30 0.04 0.50">
+
+      <freejoint name="NONMAG_BEAD_free"/>
+
+      <geom name="NONMAG_BEAD_geom"
+            type="sphere"
+            size="0.0057"
+            mass="0.007"
+            material="nonmag_bead_mat"
+            friction="0.4 0.01 0.001"
+            contype="1"
+            conaffinity="1"/>
+
+      <site name="NONMAG_BEAD_center"
+            pos="0 0 0"
+            size="0.0025"
+            rgba="1 0.2 0.2 1"/>
+    </body>
+
+  </worldbody>
+
+  <!-- ======================================================
+       MANUAL JOINT POSITION CONTROLS - STABLE SERVO VERSION
+
+       Each MuJoCo Control slider is a desired JOINT ANGLE [rad].
+
+       ctrl = 0       -> 0 deg
+       ctrl = 1.5708  -> +90 deg
+       ctrl = -1.5708 -> -90 deg
+
+       These are gravity-compensated simulation position servos for manual testing.
+       They are NOT yet the physical AUBO motor/torque model.
+       ====================================================== -->
+
+  <!--
+       Stability notes:
+       - implicitfast is used because position servos make the model stiff.
+       - armature adds reflected motor inertia, which is especially important
+         for the very small wrist inertias.
+       - gains are deliberately moderate for manual slider testing.
+       - gravcomp=1 remains enabled on moving links.
+       These are simulation stabilization choices, not identified motor parameters.
+  -->
+
+  <actuator>
+    <position name="J1_position"
+              joint="shoulder_joint"
+              kp="80" kv="18"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J2_position"
+              joint="upperArm_joint"
+              kp="80" kv="18"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J3_position"
+              joint="foreArm_joint"
+              kp="60" kv="14"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J4_position"
+              joint="wrist1_joint"
+              kp="25" kv="6"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J5_position"
+              joint="wrist2_joint"
+              kp="20" kv="5"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J6_position"
+              joint="wrist3_joint"
+              kp="15" kv="4"
+              ctrlrange="-3.04 3.04"/>
+  </actuator>
+
+
+</mujoco>
