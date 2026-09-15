@@ -16,6 +16,18 @@ from .allocator import (
     force_basis_along_axis,
 )
 
+from .local_stabilizer import (
+    LocalStabilizer,
+    LocalStabilizerGains,
+    magnetic_moment_tilt_y,
+)
+
+from .hover_controller import (
+    HoverController,
+    HoverControlInput,
+    HoverControlOutput,
+)
+
 __all__ = [
     "ZPIDGains",
     "ZPIDCandidate",
@@ -26,4 +38,10 @@ __all__ = [
     "currents_from_common_differential",
     "common_differential_from_currents",
     "force_basis_along_axis",
-]
+    "LocalStabilizerGains",
+    "LocalStabilizer",
+    "magnetic_moment_tilt_y",
+    "HoverController",
+    "HoverControlInput",
+    "HoverControlOutput",
+    ]

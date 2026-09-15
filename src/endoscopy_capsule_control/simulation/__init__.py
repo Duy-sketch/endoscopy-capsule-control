@@ -1,12 +1,11 @@
 """
-MuJoCo simulation utilities.
+Simulation utilities for the DEMA-MCE system.
 """
 
-from .initialization import (
-    AUBO_WORK_Q_DEG,
-    AUBO_WORK_Q_RAD,
-    initialize_aubo_work_pose,
-    set_aubo_configuration,
+from .mujoco_system import (
+    MujocoSystem,
+    Pose,
+    default_model_path,
 )
 
 from .dema_geometry import (
@@ -19,18 +18,20 @@ from .dema_geometry import (
     world_to_lcs_vector,
 )
 
-from .mujoco_system import (
-    MujocoSystem,
-    Pose,
-    default_model_path,
-)
-
 from .capsule_state import (
     CapsuleState,
     get_capsule_state,
 )
 
+from .capsule_wrench import (
+    CapsuleExternalWrench,
+    apply_capsule_external_wrench,
+    compute_capsule_external_wrench,
+)
+
 from .initialization import (
+    AUBO_ACTUATOR_NAMES,
+    AUBO_JOINT_NAMES,
     AUBO_WORK_Q_DEG,
     AUBO_WORK_Q_RAD,
     initialize_aubo_work_pose,
@@ -40,33 +41,68 @@ from .initialization import (
     set_free_joint_pose,
 )
 
-from .capsule_wrench import (
-    CapsuleExternalWrench,
-    apply_capsule_external_wrench,
-    compute_capsule_external_wrench,
+from .perturbation import (
+    apply_initial_perturbation,
+    rotation_matrix_to_quaternion_wxyz,
+    rotation_y,
 )
 
+from .diagnostics import (
+    PostSettlingDiagnostics,
+    PostSettlingMetrics,
+)
+
+from .viewer import (
+    configure_capsule_tracking_camera,
+    configure_dema_overview_camera,
+)
+
+from .hover_simulation import (
+    HoverSimulation,
+    HoverSimulationResult,
+)
+
+
 __all__ = [
-    "Pose",
     "MujocoSystem",
+    "Pose",
     "default_model_path",
-    "ElectromagnetGeometry",
+
     "DEMAGeometry",
+    "ElectromagnetGeometry",
     "get_dema_geometry",
-    "world_to_lcs_position",
     "lcs_to_world_position",
-    "world_to_lcs_vector",
     "lcs_to_world_vector",
+    "world_to_lcs_position",
+    "world_to_lcs_vector",
+
     "CapsuleState",
     "get_capsule_state",
+
+    "CapsuleExternalWrench",
+    "apply_capsule_external_wrench",
+    "compute_capsule_external_wrench",
+
+    "AUBO_ACTUATOR_NAMES",
+    "AUBO_JOINT_NAMES",
     "AUBO_WORK_Q_DEG",
     "AUBO_WORK_Q_RAD",
-    "set_aubo_configuration",
     "initialize_aubo_work_pose",
-    "set_free_joint_pose",
-    "initialize_mce_hover_pose",
     "initialize_hover_operating_point",
-    "CapsuleExternalWrench",
-    "compute_capsule_external_wrench",
-    "apply_capsule_external_wrench",
+    "initialize_mce_hover_pose",
+    "set_aubo_configuration",
+    "set_free_joint_pose",
+
+    "apply_initial_perturbation",
+    "rotation_matrix_to_quaternion_wxyz",
+    "rotation_y",
+
+    "PostSettlingDiagnostics",
+    "PostSettlingMetrics",
+
+    "configure_capsule_tracking_camera",
+    "configure_dema_overview_camera",
+
+    "HoverSimulation",
+    "HoverSimulationResult",
 ]

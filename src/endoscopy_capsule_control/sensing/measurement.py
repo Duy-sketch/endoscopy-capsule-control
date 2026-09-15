@@ -1,18 +1,18 @@
 """
-Measurement model for capsule localization.
+Measurement model for the DEMA-MCE hover simulation.
 
-The model supports:
-- Gaussian position noise
-- Gaussian theta_y noise
-- discrete measurement delay
+The sensor model is intentionally separated from the physical plant.
 
-Noise is sampled once per controller update.
+True MuJoCo state:
+    -> remains untouched
 
-For delay_samples = 1:
-    the controller receives the previous measurement sample.
+Controller measurement:
+    -> Gaussian position noise
+    -> Gaussian theta_y noise
+    -> discrete sample delay
 
-For delay_samples = 0:
-    the controller receives the newest measurement immediately.
+The measurement residual is defined relative to the CURRENT true state,
+so it contains both sensor noise and delay effects.
 """
 
 from __future__ import annotations
@@ -26,50 +26,86 @@ import numpy as np
 @dataclass(frozen=True)
 class Measurement:
     """
-    Measurement returned to the controller.
+    One measurement delivered to the controller.
+
+    position_lcs
+        Delayed noisy capsule position in DEMA LCS [m].
+
+    theta_y
+        Delayed noisy magnetic-moment tilt [rad].
+
+    position_noise_lcs
+        Noise originally added to the delayed position sample [m].
+
+    theta_y_noise
+        Noise originally added to the delayed orientation sample [rad].
+
+    position_residual_lcs
+        Delayed measurement - current true position [m].
+
+    theta_y_residual
+        Delayed measured theta_y - current true theta_y [rad].
     """
 
-    position_local: np.ndarray
+    position_lcs: np.ndarray
     theta_y: float
 
-    position_noise: np.ndarray
+    position_noise_lcs: np.ndarray
     theta_y_noise: float
 
-    position_residual: np.ndarray
+    position_residual_lcs: np.ndarray
     theta_y_residual: float
 
 
 class MeasurementModel:
     """
-    Noisy and delayed capsule measurement model.
+    Gaussian-noise + discrete-delay measurement model.
+
+    Noise is sampled whenever sample() is called. In the hover
+    simulation this occurs at the controller rate (100 Hz).
+
+    Parameters
+    ----------
+    position_noise_std
+        Gaussian position standard deviation [m] per local axis.
+
+    theta_y_noise_std
+        Gaussian theta_y standard deviation [rad].
+
+    delay_samples
+        Measurement delay measured in controller samples.
+
+        0 -> no delay
+        1 -> one control-sample delay
+        etc.
+
+    seed
+        NumPy random seed for reproducible simulations.
     """
 
     def __init__(
         self,
-        position_noise_std: float,
-        theta_y_noise_std: float,
+        *,
+        position_noise_std: float = 0.0,
+        theta_y_noise_std: float = 0.0,
         delay_samples: int = 0,
-        seed: int | None = None,
+        seed: int = 1,
     ):
-        """
-        Parameters
-        ----------
-        position_noise_std
-            Gaussian position-noise standard deviation [m]
-            applied independently to local X, Y and Z.
+        if position_noise_std < 0.0:
+            raise ValueError(
+                "position_noise_std must be non-negative."
+            )
 
-        theta_y_noise_std
-            Gaussian theta_y noise standard deviation [rad].
+        if theta_y_noise_std < 0.0:
+            raise ValueError(
+                "theta_y_noise_std must be non-negative."
+            )
 
-        delay_samples
-            Number of controller samples of measurement delay.
+        if delay_samples < 0:
+            raise ValueError(
+                "delay_samples must be non-negative."
+            )
 
-            0 -> no delay
-            1 -> one control-sample delay
-
-        seed
-            Random-number-generator seed.
-        """
         self.position_noise_std = float(
             position_noise_std
         )
@@ -82,202 +118,180 @@ class MeasurementModel:
             delay_samples
         )
 
-        if self.position_noise_std < 0.0:
-            raise ValueError(
-                "position_noise_std cannot be negative."
-            )
-
-        if self.theta_y_noise_std < 0.0:
-            raise ValueError(
-                "theta_y_noise_std cannot be negative."
-            )
-
-        if self.delay_samples < 0:
-            raise ValueError(
-                "delay_samples cannot be negative."
-            )
-
-        self.rng = np.random.default_rng(
+        self.seed = int(
             seed
+        )
+
+        self._rng = np.random.default_rng(
+            self.seed
         )
 
         self._buffer = deque(
             maxlen=self.delay_samples + 1
         )
 
-
-    def reset(
-        self,
-        position_local: np.ndarray,
-        theta_y: float,
-    ) -> Measurement:
+    def reset(self) -> None:
         """
-        Initialize the measurement buffer.
-
-        The first sample is generated from the supplied true state.
+        Reset random generator and delay buffer.
         """
+
+        self._rng = np.random.default_rng(
+            self.seed
+        )
+
         self._buffer.clear()
 
-        sample = self._create_noisy_sample(
-            position_local=position_local,
-            theta_y=theta_y,
-        )
-
-        self._buffer.append(
-            sample
-        )
-
-        return self._build_output(
-            delayed_sample=sample,
-            current_true_position=position_local,
-            current_true_theta=theta_y,
-        )
-
-
-    def update(
-        self,
-        position_local: np.ndarray,
-        theta_y: float,
-    ) -> Measurement:
+    @staticmethod
+    def _angle_difference(
+        angle_a: float,
+        angle_b: float,
+    ) -> float:
         """
-        Generate a new sensor sample and return the delayed
-        measurement seen by the controller.
+        Wrapped angle difference angle_a - angle_b.
         """
-        position_local = np.asarray(
-            position_local,
-            dtype=float,
-        ).reshape(3)
 
-        theta_y = float(
-            theta_y
+        delta = (
+            float(angle_a)
+            - float(angle_b)
         )
 
-        newest_sample = (
-            self._create_noisy_sample(
-                position_local=position_local,
-                theta_y=theta_y,
+        return float(
+            np.arctan2(
+                np.sin(delta),
+                np.cos(delta),
             )
         )
 
-        self._buffer.append(
-            newest_sample
-        )
-
-        delayed_sample = (
-            self._buffer[0]
-        )
-
-        return self._build_output(
-            delayed_sample=delayed_sample,
-            current_true_position=position_local,
-            current_true_theta=theta_y,
-        )
-
-
-    def _create_noisy_sample(
+    def sample(
         self,
-        position_local: np.ndarray,
-        theta_y: float,
-    ):
+        *,
+        true_position_lcs: np.ndarray,
+        true_theta_y: float,
+    ) -> Measurement:
         """
-        Generate one noisy measurement sample.
+        Generate one sensor sample and return the delayed measurement.
+
+        The delay buffer stores noisy samples.
+
+        With delay_samples = 1:
+
+            k = 0:
+                only one sample exists, so that sample is returned.
+
+            k >= 1:
+                sample k is appended,
+                sample k-1 is delivered to the controller.
+
+        This avoids inventing sensor history before simulation start.
         """
-        position_local = np.asarray(
-            position_local,
+
+        true_position = np.asarray(
+            true_position_lcs,
             dtype=float,
         ).reshape(3)
 
-        theta_y = float(
-            theta_y
+        true_theta = float(
+            true_theta_y
         )
 
-        position_noise = self.rng.normal(
+        # ----------------------------------------------------
+        # Generate newest noisy sample
+        # ----------------------------------------------------
+
+        position_noise = self._rng.normal(
             loc=0.0,
             scale=self.position_noise_std,
             size=3,
         )
 
-        theta_y_noise = float(
-            self.rng.normal(
+        theta_noise = float(
+            self._rng.normal(
                 loc=0.0,
                 scale=self.theta_y_noise_std,
             )
         )
 
-        measured_position = (
-            position_local
+        noisy_position = (
+            true_position
             + position_noise
         )
 
-        measured_theta_y = (
-            theta_y
-            + theta_y_noise
+        noisy_theta = (
+            true_theta
+            + theta_noise
         )
 
-        return (
-            measured_position,
-            measured_theta_y,
-            position_noise,
-            theta_y_noise,
+        self._buffer.append(
+            (
+                noisy_position.copy(),
+                float(noisy_theta),
+                position_noise.copy(),
+                float(theta_noise),
+            )
         )
 
+        # ----------------------------------------------------
+        # Oldest available sample is delivered
+        # ----------------------------------------------------
 
-    def _build_output(
-        self,
-        delayed_sample,
-        current_true_position,
-        current_true_theta,
-    ) -> Measurement:
-        """
-        Convert one buffered sample into the controller output.
-        """
         (
             measured_position,
-            measured_theta_y,
-            position_noise,
-            theta_y_noise,
-        ) = delayed_sample
+            measured_theta,
+            delayed_position_noise,
+            delayed_theta_noise,
+        ) = self._buffer[0]
 
-        current_true_position = np.asarray(
-            current_true_position,
+        measured_position = np.asarray(
+            measured_position,
             dtype=float,
-        ).reshape(3)
+        ).copy()
 
-        current_true_theta = float(
-            current_true_theta
+        measured_theta = float(
+            measured_theta
         )
 
-        # Includes both sensor noise and delay error.
+        # ----------------------------------------------------
+        # Residual against CURRENT true state
+        #
+        # Therefore this contains both:
+        #
+        #   sensor noise
+        #   +
+        #   delay effect
+        # ----------------------------------------------------
+
         position_residual = (
             measured_position
-            - current_true_position
+            - true_position
         )
 
-        theta_y_residual = (
-            measured_theta_y
-            - current_true_theta
+        theta_residual = (
+            self._angle_difference(
+                measured_theta,
+                true_theta,
+            )
         )
 
         return Measurement(
-            position_local=np.asarray(
-                measured_position,
-                dtype=float,
-            ).copy(),
-            theta_y=float(
-                measured_theta_y
+            position_lcs=(
+                measured_position
             ),
-            position_noise=np.asarray(
-                position_noise,
-                dtype=float,
-            ).copy(),
+            theta_y=(
+                measured_theta
+            ),
+            position_noise_lcs=(
+                np.asarray(
+                    delayed_position_noise,
+                    dtype=float,
+                ).copy()
+            ),
             theta_y_noise=float(
-                theta_y_noise
+                delayed_theta_noise
             ),
-            position_residual=np.asarray(
-                position_residual,
-                dtype=float,
-            ).copy(),
-            theta_y_residual=float(
-                theta_y_residual
+            position_residual_lcs=(
+                position_residual
+            ),
+            theta_y_residual=(
+                theta_residual
             ),
         )

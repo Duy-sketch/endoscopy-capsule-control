@@ -10,6 +10,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+@dataclass(frozen=True)
+class LocalStabilizerConfig:
+    """
+    Local equilibrium stabilization parameters.
+
+    These are not task-level trajectory-control gains.
+    """
+
+    kx: float = 2.5
+    ktheta: float = 1.0
+
+    x_ref: float = 0.0
+
+    common_current_abs_max: float = 3.0
 
 @dataclass(frozen=True)
 class SimulationConfig:
@@ -150,7 +164,9 @@ class AppConfig:
     simulation: SimulationConfig = field(
         default_factory=SimulationConfig
     )
-
+    local_stabilizer: LocalStabilizerConfig = field(
+        default_factory=LocalStabilizerConfig
+    )
     capsule: CapsuleConfig = field(
         default_factory=CapsuleConfig
     )
