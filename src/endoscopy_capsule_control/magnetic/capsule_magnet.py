@@ -178,3 +178,20 @@ def angle_between_deg(
             )
         )
     )
+
+
+def magnetic_moment_tilt_y(magnetic_moment_lcs: np.ndarray) -> float:
+    """Return capsule magnetic-moment tilt about DEMA local Y [rad].
+
+    The nominal hover orientation has the magnetic moment along local +X.
+    With the project's positive-Y convention:
+
+        theta_y = atan2(-m_z, m_x)
+    """
+
+    moment = np.asarray(magnetic_moment_lcs, dtype=float).reshape(3)
+    mx = float(moment[0])
+    mz = float(moment[2])
+    if np.hypot(mx, mz) <= 1e-12:
+        raise ValueError("Magnetic moment has insufficient XZ-plane magnitude")
+    return float(np.arctan2(-mz, mx))

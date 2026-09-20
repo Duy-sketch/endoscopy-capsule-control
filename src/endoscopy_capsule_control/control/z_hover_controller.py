@@ -1,14 +1,16 @@
-"""
-Z-axis hover controller for the DEMA.
+"""Z-axis hover controller for the DEMA-actuated capsule.
 
-New XYZ architecture:
-    X/Y -> AUBO motion
-    Z   -> DEMA differential current Id
+The controller sees measurements and a reported DEMA geometry only.
+It never reads MuJoCo qpos and it never adds plant noise itself.
 
-Common current is disabled:
+For the current Z-only experiment:
+
     Ic = 0
     I1 = -Id
     I2 = +Id
+
+A feedforward term compensates the nominal vertical load and a PID
+correction regulates measured capsule Z position.
 """
 
 from __future__ import annotations
@@ -44,7 +46,7 @@ class ZHoverControlOutput:
 
 
 class ZHoverController:
-    """Feedforward + PID hover controller using differential current only."""
+    """Feedforward + PID Z-hover controller using differential current."""
 
     def __init__(
         self,
@@ -67,7 +69,7 @@ class ZHoverController:
         differential_current_max: float,
         gradient_step: float,
         em_gain: float,
-    ):
+    ) -> None:
         self.z_ref = float(z_ref)
         self.feedforward_force_z = float(feedforward_force_z)
         self.desired_force_z_min = float(desired_force_z_min)
@@ -75,35 +77,29 @@ class ZHoverController:
         self.em_gain = float(em_gain)
 
         gains = design_z_pid_gains(
-            mass=mass,
-            drag_coefficient=drag_coefficient,
-            natural_frequency=natural_frequency,
-            damping_ratio=damping_ratio,
-            integral_pole=integral_pole,
+            mass=float(mass),
+            drag_coefficient=float(drag_coefficient),
+            natural_frequency=float(natural_frequency),
+            damping_ratio=float(damping_ratio),
+            integral_pole=float(integral_pole),
         )
-
         self.pid = ZPIDController(
             gains=gains,
-            dt=control_dt,
-            derivative_filter_tau=derivative_filter_tau,
-            integral_limit=integral_limit,
-            force_limit=pid_force_limit,
+            dt=float(control_dt),
+            derivative_filter_tau=float(derivative_filter_tau),
+            integral_limit=float(integral_limit),
+            force_limit=float(pid_force_limit),
         )
 
         self.allocator = MagneticCurrentAllocator(
-            current_abs_max=current_abs_max,
-            differential_current_min=differential_current_min,
-            differential_current_max=differential_current_max,
+            current_abs_max=float(current_abs_max),
+            differential_current_min=float(differential_current_min),
+            differential_current_max=float(differential_current_max),
             common_current_abs_max=0.0,
-            gradient_step=gradient_step,
+            gradient_step=float(gradient_step),
         )
 
-    def reset(
-        self,
-        *,
-        initial_z: float,
-        z_ref: float | None = None,
-    ) -> None:
+    def reset(self, *, initial_z: float, z_ref: float | None = None) -> None:
         reference = self.z_ref if z_ref is None else float(z_ref)
         self.pid.reset(initial_error=reference - float(initial_z))
 
@@ -121,10 +117,8 @@ class ZHoverController:
         )
 
         force_before_axis_limit = (
-            self.feedforward_force_z
-            + candidate.force_candidate
+            self.feedforward_force_z + candidate.force_candidate
         )
-
         desired_force_candidate = float(
             np.clip(
                 force_before_axis_limit,
@@ -147,18 +141,13 @@ class ZHoverController:
         force_limit_saturated = bool(
             abs(desired_force_candidate - force_before_axis_limit) > 1e-12
         )
-
         integral_accepted = not (
-            force_limit_saturated
-            or candidate_allocation.saturated
+            force_limit_saturated or candidate_allocation.saturated
         )
 
         pid_force = float(
-            self.pid.finalize(
-                accept_integral=integral_accepted
-            )
+            self.pid.finalize(accept_integral=integral_accepted)
         )
-
         desired_force_z = float(
             np.clip(
                 self.feedforward_force_z + pid_force,
@@ -179,10 +168,7 @@ class ZHoverController:
         )
 
         current_command = np.array(
-            [
-                allocation.current_1,
-                allocation.current_2,
-            ],
+            [allocation.current_1, allocation.current_2],
             dtype=float,
         )
 

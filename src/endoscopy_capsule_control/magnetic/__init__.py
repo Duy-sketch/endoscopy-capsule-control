@@ -5,6 +5,7 @@ Magnetic models used by the DEMA-MCE simulation.
 from .capsule_magnet import (
     angle_between_deg,
     magnetic_potential_energy,
+    magnetic_moment_tilt_y,
     moment_world_from_body,
     unit,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "dipole_field",
     "total_field",
     "moment_world_from_body",
+    "magnetic_moment_tilt_y",
     "magnetic_potential_energy",
     "force_fixed_capsule_moment",
     "magnetic_wrench",

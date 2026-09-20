@@ -1,6 +1,4 @@
-"""
-Controllers used by the magnetic capsule simulation.
-"""
+"""Controllers used by the Z-hover experiment."""
 
 from .pid_z import (
     ZPIDCandidate,
@@ -15,17 +13,10 @@ from .allocator import (
     currents_from_common_differential,
     force_basis_along_axis,
 )
-
-from .local_stabilizer import (
-    LocalStabilizer,
-    LocalStabilizerGains,
-    magnetic_moment_tilt_y,
-)
-
-from .hover_controller import (
-    HoverController,
-    HoverControlInput,
-    HoverControlOutput,
+from .z_hover_controller import (
+    ZHoverControlInput,
+    ZHoverControlOutput,
+    ZHoverController,
 )
 
 __all__ = [
@@ -38,10 +29,7 @@ __all__ = [
     "currents_from_common_differential",
     "common_differential_from_currents",
     "force_basis_along_axis",
-    "LocalStabilizerGains",
-    "LocalStabilizer",
-    "magnetic_moment_tilt_y",
-    "HoverController",
-    "HoverControlInput",
-    "HoverControlOutput",
-    ]
+    "ZHoverControlInput",
+    "ZHoverControlOutput",
+    "ZHoverController",
+]

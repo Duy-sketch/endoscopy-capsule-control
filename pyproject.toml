@@ -2,19 +2,22 @@
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
-
 [project]
 name = "endoscopy-capsule-control"
-version = "0.1.0"
-description = "Simulation and control of a magnetically actuated capsule endoscope using a dual-electromagnet actuation system."
+version = "0.2.0"
+description = "Plant-first simulation and Z control of a magnetically actuated endoscopy capsule using an AUBO i10-mounted DEMA."
 readme = "README.md"
 requires-python = ">=3.10"
-
 dependencies = [
     "numpy",
     "mujoco",
 ]
 
-
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+endoscopy_capsule_control = [
+    "models/*.xml",
+    "models/assets/**/*",
+]

@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from endoscopy_capsule_control.dynamics import (
+from endoscopy_capsule_control.plant.fluid import (
     buoyancy_force,
     rotational_drag,
     translational_drag,

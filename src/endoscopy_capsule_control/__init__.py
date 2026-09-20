@@ -1,10 +1,10 @@
-"""
-DEMA-MCE magnetic capsule control simulation.
+"""DEMA-MCE capsule-control research simulation.
 
-This package contains:
-- magnetic field and wrench models
-- capsule/fluid dynamics
-- control algorithms
-- sensing models
-- MuJoCo simulation utilitie
+Current active scope:
+- magnetic field / wrench model,
+- fluid and MuJoCo capsule dynamics,
+- equivalent dual-channel current source,
+- RF-localization uncertainty,
+- AUBO i10 DEMA-pose uncertainty,
+- Z-hover control.
 """
