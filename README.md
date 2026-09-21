@@ -7,17 +7,12 @@ Hiện tại project tập trung vào plant và điều khiển Z-hovering. Các
 - Tính lực và mô-men từ do hai electromagnet tạo ra.
 - Điều khiển capsule giữ độ cao theo trục Z.
 - Mô phỏng các sai số thực tế:
-
 + nhiễu dòng điện của bộ nguồn,
-
 + nhiễu localization,
-
 + sai số vị trí của AUBO i10.
 
 Cho phép bật/tắt từng loại nhiễu để test controller.
-
 Luồng chính:
-
 Z target
    ↓
 Z controller
@@ -37,17 +32,8 @@ Localization + noise
 Measured state → controller
 
 2. Cài đặt
-
-Yêu cầu khuyến nghị:
-
-Python 3.13
-
-MuJoCo
-
-NumPy
-
+Yêu cầu khuyến nghị: Python 3.13, MuJoCo, NumPy
 Tại thư mục project:
-
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -60,29 +46,19 @@ python -m unittest discover -s tests -v
 Nếu hiện OK thì có thể chạy simulation.
 
 3. Các lệnh test quan trọng
-
-Test các model nhiễu
-
+- Test các model nhiễu
 python scripts/test_plant.py
-
 Script kiểm tra:
++ current noise,
++ RF localization noise,
++ AUBO i10 pose uncertainty.
 
-current noise,
-
-RF localization noise,
-
-AUBO i10 pose uncertainty.
-
-Test lực từ theo dòng điện
-
+- Test lực từ theo dòng điện
 python scripts/test_magnetic_z.py
 
 Dùng để kiểm tra dấu và độ đối xứng của lực từ.
 
-Test Z plant open-loop
-
-python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
-
+- Test Z plant open-loop
 Một vài case tham khảo:
 
 python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -10 --i2 10
@@ -98,108 +74,47 @@ Tại operating point hiện tại:
 -20, +20 A: lực nâng lớn hơn trọng lực biểu kiến.
 
 4. Chạy Z-hovering
-
-Không có nhiễu
-
-python scripts/run_z_hover.py --noise none --time 10 --settling-time 5
-
-Có MuJoCo viewer
-
-python scripts/run_z_hover.py --noise none --time 10 --settling-time 5 --viewer --camera overview
+Không có nhiễu: python scripts/run_z_hover.py --noise none --time 10 --settling-time 5
+Có MuJoCo viewer: python scripts/run_z_hover.py --noise none --time 10 --settling-time 5 --viewer --camera overview
 
 Camera khác:
 
 --camera capsule
 
 5. Bật / tắt nhiễu
-
-Không cần sửa code. Chỉ thay option --noise.
-
-Chỉ current noise
-
-python scripts/run_z_hover.py --noise current --seed 42 --viewer --camera overview
-
-Chỉ localization noise
-
-python scripts/run_z_hover.py --noise localization --seed 42 --viewer --camera overview
-
-Chỉ sai số AUBO i10
-
-python scripts/run_z_hover.py --noise robot --seed 42 --viewer --camera overview
-
-Bật tất cả
-
-python scripts/run_z_hover.py --noise all --seed 42 --viewer --camera overview
+Thay option --noise.
+- Chỉ current noise:  python scripts/run_z_hover.py --noise current --seed 42 --viewer --camera overview
+- Chỉ localization noise: python scripts/run_z_hover.py --noise localization --seed 42 --viewer --camera overview
+- Chỉ sai số AUBO i10: python scripts/run_z_hover.py --noise robot --seed 42 --viewer --camera overview
+- Bật tất cả: python scripts/run_z_hover.py --noise all --seed 42 --viewer --camera overview
 
 Dùng cùng một --seed để có thể lặp lại cùng một experiment.
 
 6. Các sai số đang mô phỏng
-
-Current noise
-
-Model bộ nguồn tương đương Kepco BOP 20-20.
-
+Current noise, Model đang dùng bộ nguồn tương đương Kepco BOP 20-20.
 Baseline hiện tại:
-
 RMS current noise ≈ 6 mA / channel
-
 Hai kênh electromagnet có nhiễu độc lập.
-
 Localization noise
-
 Baseline được xây dựng từ kết quả dynamic localization của bài báo DEMA.
-
 sigma ≈ 0.93 mm / axis
 3D RMSE ≈ 1.61 mm
-
 AUBO i10 uncertainty
-
 Hiện mô phỏng dưới dạng pose bias cố định trong mỗi episode.
-
 repeatability bound ≈ 0.05 mm
 
 7. Thay đổi chất lỏng
-
 Các thông số fluid nằm trong:
-
 src/endoscopy_capsule_control/plant/fluid.py
-
-Khi đổi fluid cần chú ý hai thông số chính:
-
-density rho,
-
-viscosity.
-
+Khi đổi fluid cần chú ý hai thông số chính: density rho, viscosity.
 Density ảnh hưởng buoyancy, còn viscosity ảnh hưởng drag.
-
-Sau khi đổi fluid nên chạy lại:
-
-python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
-
+Sau khi đổi fluid nên chạy lại: python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
 Nếu capsule không còn cân bằng tại -15, +15 A thì phải cập nhật lại feedforward/equilibrium current trong config/controller.
 
 8. Thay đổi mức nhiễu
-
 Các tham số chính nằm trong:
-
 src/endoscopy_capsule_control/config.py
-
-Có thể chỉnh:
-
-current noise,
-
-localization sigma,
-
-AUBO repeatability,
-
-capsule mass/geometry,
-
-magnetic moment,
-
-controller gains,
-
-control timestep.
-
+Có thể chỉnh:current noise,localization sigma,AUBO repeatability, capsule mass/geometry, magnetic moment, controller gains, control timestep.
 Sau khi thay config nên chạy lại theo thứ tự:
 
 python -m unittest discover -s tests -v
