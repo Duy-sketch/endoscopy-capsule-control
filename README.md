@@ -91,35 +91,42 @@ Thay option --noise.
 Dùng cùng một --seed để có thể lặp lại cùng một experiment.
 
 6. Các sai số đang mô phỏng
-Current noise, Model đang dùng bộ nguồn tương đương Kepco BOP 20-20.
-Baseline hiện tại:
-RMS current noise ≈ 6 mA / channel
-Hai kênh electromagnet có nhiễu độc lập.
-Localization noise
-Baseline được xây dựng từ kết quả dynamic localization của bài báo DEMA.
-sigma ≈ 0.93 mm / axis
-3D RMSE ≈ 1.61 mm
-AUBO i10 uncertainty
+- Current noise, Model đang dùng bộ nguồn tương đương Kepco BOP 20-20.
+- Baseline hiện tại:
++ RMS current noise ≈ 6 mA / channel, hai kênh electromagnet có nhiễu độc lập.
++ Localization noise
++ Baseline được xây dựng từ kết quả dynamic localization của bài báo DEMA.
++ sigma ≈ 0.93 mm / axis
++ 3D RMSE ≈ 1.61 mm
++ AUBO i10 uncertainty
 Hiện mô phỏng dưới dạng pose bias cố định trong mỗi episode.
 repeatability bound ≈ 0.05 mm
 
 7. Thay đổi chất lỏng
-Các thông số fluid nằm trong:
-src/endoscopy_capsule_control/plant/fluid.py
+Các thông số fluid nằm trong: src/endoscopy_capsule_control/plant/fluid.py
+
 Khi đổi fluid cần chú ý hai thông số chính: density rho, viscosity.
+
 Density ảnh hưởng buoyancy, còn viscosity ảnh hưởng drag.
+
 Sau khi đổi fluid nên chạy lại: python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
+
 Nếu capsule không còn cân bằng tại -15, +15 A thì phải cập nhật lại feedforward/equilibrium current trong config/controller.
 
-8. Thay đổi mức nhiễu
+9. Thay đổi mức nhiễu
 Các tham số chính nằm trong:
 src/endoscopy_capsule_control/config.py
+
 Có thể chỉnh:current noise,localization sigma,AUBO repeatability, capsule mass/geometry, magnetic moment, controller gains, control timestep.
+
 Sau khi thay config nên chạy lại theo thứ tự:
 
 python -m unittest discover -s tests -v
+
 python scripts/test_plant.py
+
 python scripts/test_magnetic_z.py
+
 python scripts/run_z_hover.py --noise none --time 5 --settling-time 2
 
 Sau đó mới bật từng loại noise.
@@ -128,16 +135,24 @@ Sau đó mới bật từng loại noise.
 
 scripts/
     run_z_hover.py
+    
     test_magnetic_z.py
+    
     test_plant.py
+    
     test_z_plant_open_loop.py
 
 src/endoscopy_capsule_control/
     control/       # đây là bdk PID+FF
+    
     magnetic/      # động lực học từ
+    
     plant/         # toàn bộ plant từ sai số localization, nguồn, robpt
+    
     simulation/    # MuJoCo, AUBO IK, viewer
+    
     models/        # AUBO i10 XML + meshes
+    
     config.py
 
 tests/
