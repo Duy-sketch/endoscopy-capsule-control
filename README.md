@@ -113,7 +113,7 @@ Sau khi đổi fluid nên chạy lại: python scripts/test_z_plant_open_loop.py
 
 Nếu capsule không còn cân bằng tại -15, +15 A thì phải cập nhật lại feedforward/equilibrium current trong config/controller.
 
-9. Thay đổi mức nhiễu
+8. Thay đổi mức nhiễu
 Các tham số chính nằm trong:
 src/endoscopy_capsule_control/config.py
 
@@ -134,6 +134,7 @@ Sau đó mới bật từng loại noise.
 9. Cấu trúc project
 
 scripts/
+
     run_z_hover.py
     
     test_magnetic_z.py
@@ -143,6 +144,7 @@ scripts/
     test_z_plant_open_loop.py
 
 src/endoscopy_capsule_control/
+
     control/       # đây là bdk PID+FF
     
     magnetic/      # động lực học từ
