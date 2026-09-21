@@ -1,214 +1,233 @@
-# endoscopy-capsule-control
+Project mô phỏng điều khiển capsule nội soi từ tính bằng hệ DEMA (Dual-Electromagnet Actuation) gắn trên robot AUBO i10, sử dụng MuJoCo.
 
-MuJoCo simulation of a magnetic capsule endoscope actuated by a dual-electromagnet actuator (DEMA) mounted on an **AUBO i10**.
+Hiện tại project tập trung vào plant và điều khiển Z-hovering. Các phần XY/XYZ sẽ được phát triển lại sau trên nền plant hiện tại.
 
-The current development scope is intentionally narrow:
+1. Mục tiêu hiện tại
 
-1. build a clean physical plant,
-2. add three independently switchable uncertainty sources,
-3. validate the plant,
-4. test **Z hovering only**,
-5. return to XYZ control later.
+Mô phỏng capsule trong chất lỏng.
 
-## Plant data flow
+Tính lực và mô-men từ do hai electromagnet tạo ra.
 
-```text
-current command
-    -> equivalent dual-channel power supply
-    -> actual coil currents
-    -> magnetic field / force / torque
-    -> fluid + MuJoCo rigid-body dynamics
-    -> true capsule state
-    -> RF localization
-    -> measured capsule state
-    -> Z controller
-```
+Điều khiển capsule giữ độ cao theo trục Z.
 
-AUBO uncertainty is applied between reported robot kinematics and the physical DEMA pose used by the magnetic plant.
+Mô phỏng các sai số thực tế:
 
-The controller must not read MuJoCo `qpos` directly. `qpos` is ground truth for simulation diagnostics only.
+nhiễu dòng điện của bộ nguồn,
 
-## Uncertainty models
+nhiễu localization,
 
-### 1. Current-source noise
+sai số vị trí của AUBO i10.
 
-The DEMA paper states that the two electromagnets are energized by **two independent power units** and that the coils are designed for a maximum current of **20 A**, but it does not identify the power supplies.
+Cho phép bật/tắt từng loại nhiễu để test controller.
 
-The baseline simulation therefore uses a **Kepco BOP 20-20 equivalent**:
+Luồng chính:
 
-- range: ±20 A,
-- current-mode ripple/noise: 0.03% of full-scale RMS,
-- baseline current-noise RMS: `0.0003 * 20 A = 0.006 A = 6 mA`,
-- two channels are sampled independently.
+Z target
+   ↓
+Z controller
+   ↓
+Current command
+   ↓
+Power supply model + current noise
+   ↓
+Magnetic force
+   ↓
+Capsule dynamics + fluid + gravity
+   ↓
+True state
+   ↓
+Localization + noise
+   ↓
+Measured state → controller
 
-No artificial coil L/R time constant is enabled by default because the paper does not provide enough electrical parameters to identify one.
+2. Cài đặt
 
-### 2. RF localization noise
+Yêu cầu khuyến nghị:
 
-The paper reports dynamic position-localization results of approximately:
+Python 3.13
 
-- trial 1: `1.70 ± 0.74 mm`,
-- trial 2: `1.52 ± 0.72 mm`.
+MuJoCo
 
-The baseline uses their mean 3-D 2-norm RMSE, `1.61 mm`. Under an explicit isotropic independent-axis Gaussian assumption:
+NumPy
 
-```text
-sigma_axis = 1.61 mm / sqrt(3) = 0.9295 mm
-```
+Tại thư mục project:
 
-The paper states that the software runs at 100 Hz. It does not identify a fixed end-to-end localization delay, so the baseline delay is zero samples.
-
-### 3. AUBO i10 pose uncertainty
-
-The current AUBO i10 model corresponds to the older ±175° joint-range generation. The matching AUBO i10 specification gives pose repeatability of approximately **±0.05 mm**.
-
-For the stationary Z-hover experiment this is modeled as a **fixed Cartesian DEMA translation bias sampled once per episode**, not as 1-kHz white jitter.
-
-The simulation uses `sigma = 0.05 mm / 3` and clips the total translation-bias magnitude to `0.05 mm`. This Gaussian interpretation is a simulation assumption; the manufacturer specifies repeatability, not a probability distribution.
-
-## Install
-
-```bash
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -e .
-```
 
-## 1. Test the three uncertainty models first
+Kiểm tra cài đặt:
 
-```bash
+python -m unittest discover -s tests -v
+
+Nếu hiện OK thì có thể chạy simulation.
+
+3. Các lệnh test quan trọng
+
+Test các model nhiễu
+
 python scripts/test_plant.py
-```
 
-Expected values are approximately:
+Script kiểm tra:
 
-```text
-current noise RMS       ~ 6 mA/channel
-localization 3-D RMSE   ~ 1.61 mm
-AUBO bias norm           <= 0.05 mm
-```
+current noise,
 
-Run one component only:
+RF localization noise,
 
-```bash
-python scripts/test_plant.py --component current
-python scripts/test_plant.py --component localization
-python scripts/test_plant.py --component robot
-```
+AUBO i10 pose uncertainty.
 
-## 2. Verify magnetic Z sign convention
+Test lực từ theo dòng điện
 
-```bash
 python scripts/test_magnetic_z.py
-```
 
-This evaluates several `(I1, I2)` combinations and prints force and torque in the DEMA local frame. Do this before tuning any controller.
+Dùng để kiểm tra dấu và độ đối xứng của lực từ.
 
-## 3. Test the plant open loop
+Test Z plant open-loop
 
-Ideal plant:
+python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
 
-```bash
-python scripts/test_z_plant_open_loop.py --noise none
-```
+Một vài case tham khảo:
 
-One uncertainty at a time:
+python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -10 --i2 10
+python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
+python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -20 --i2 20
 
-```bash
-python scripts/test_z_plant_open_loop.py --noise current
-python scripts/test_z_plant_open_loop.py --noise localization
-python scripts/test_z_plant_open_loop.py --noise robot
-```
+Tại operating point hiện tại:
 
-All uncertainties:
+-10, +10 A: lực nâng chưa đủ,
 
-```bash
-python scripts/test_z_plant_open_loop.py --noise all --seed 42
-```
+-15, +15 A: gần điểm cân bằng,
 
-## 4. Run Z hovering
+-20, +20 A: lực nâng lớn hơn trọng lực biểu kiến.
 
-Ideal baseline first:
+4. Chạy Z-hovering
 
-```bash
+Không có nhiễu
+
 python scripts/run_z_hover.py --noise none --time 10 --settling-time 5
-```
 
-Then isolate each uncertainty:
+Có MuJoCo viewer
 
-```bash
-python scripts/run_z_hover.py --noise current --seed 42
-python scripts/run_z_hover.py --noise localization --seed 42
-python scripts/run_z_hover.py --noise robot --seed 42
-```
+python scripts/run_z_hover.py --noise none --time 10 --settling-time 5 --viewer --camera overview
 
-Combine selected sources:
+Camera khác:
 
-```bash
-python scripts/run_z_hover.py --noise current localization --seed 42
-```
+--camera capsule
 
-Full plant uncertainty:
+5. Bật / tắt nhiễu
 
-```bash
-python scripts/run_z_hover.py --noise all --seed 42
-```
+Không cần sửa code. Chỉ thay option --noise.
 
-Viewer:
+Chỉ current noise
 
-```bash
+python scripts/run_z_hover.py --noise current --seed 42 --viewer --camera overview
+
+Chỉ localization noise
+
+python scripts/run_z_hover.py --noise localization --seed 42 --viewer --camera overview
+
+Chỉ sai số AUBO i10
+
+python scripts/run_z_hover.py --noise robot --seed 42 --viewer --camera overview
+
+Bật tất cả
+
 python scripts/run_z_hover.py --noise all --seed 42 --viewer --camera overview
-```
 
-## Project structure
+Dùng cùng một --seed để có thể lặp lại cùng một experiment.
 
-```text
+6. Các sai số đang mô phỏng
+
+Current noise
+
+Model bộ nguồn tương đương Kepco BOP 20-20.
+
+Baseline hiện tại:
+
+RMS current noise ≈ 6 mA / channel
+
+Hai kênh electromagnet có nhiễu độc lập.
+
+Localization noise
+
+Baseline được xây dựng từ kết quả dynamic localization của bài báo DEMA.
+
+sigma ≈ 0.93 mm / axis
+3D RMSE ≈ 1.61 mm
+
+AUBO i10 uncertainty
+
+Hiện mô phỏng dưới dạng pose bias cố định trong mỗi episode.
+
+repeatability bound ≈ 0.05 mm
+
+7. Thay đổi chất lỏng
+
+Các thông số fluid nằm trong:
+
+src/endoscopy_capsule_control/plant/fluid.py
+
+Khi đổi fluid cần chú ý hai thông số chính:
+
+density rho,
+
+viscosity.
+
+Density ảnh hưởng buoyancy, còn viscosity ảnh hưởng drag.
+
+Sau khi đổi fluid nên chạy lại:
+
+python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
+
+Nếu capsule không còn cân bằng tại -15, +15 A thì phải cập nhật lại feedforward/equilibrium current trong config/controller.
+
+8. Thay đổi mức nhiễu
+
+Các tham số chính nằm trong:
+
+src/endoscopy_capsule_control/config.py
+
+Có thể chỉnh:
+
+current noise,
+
+localization sigma,
+
+AUBO repeatability,
+
+capsule mass/geometry,
+
+magnetic moment,
+
+controller gains,
+
+control timestep.
+
+Sau khi thay config nên chạy lại theo thứ tự:
+
+python -m unittest discover -s tests -v
+python scripts/test_plant.py
+python scripts/test_magnetic_z.py
+python scripts/run_z_hover.py --noise none --time 5 --settling-time 2
+
+Sau đó mới bật từng loại noise.
+
+9. Cấu trúc project
+
 scripts/
     run_z_hover.py
-    test_plant.py
     test_magnetic_z.py
+    test_plant.py
     test_z_plant_open_loop.py
 
 src/endoscopy_capsule_control/
+    control/       # PID, allocator, Z controller
+    magnetic/      # magnetic field / wrench model
+    plant/         # fluid, localization, power supply, robot uncertainty
+    simulation/    # MuJoCo, AUBO IK, viewer, simulation loop
+    models/        # AUBO i10 XML + meshes
     config.py
 
-    plant/
-        noise.py
-        power_supply.py
-        localization.py
-        robot_uncertainty.py
-        z_hover_plant.py
-
-    control/
-        pid_z.py
-        allocator.py
-        z_hover_controller.py
-
-    dynamics/
-        fluid.py
-
-    magnetic/
-        capsule_magnet.py
-        dipole.py
-        wrench.py
-
-    simulation/
-        mujoco_system.py
-        initialization.py
-        capsule_state.py
-        capsule_wrench.py
-        dema_geometry.py
-        perturbation.py
-        viewer.py
-        aubo_ik.py
-        z_hover_simulation.py
-
-    models/
-        aubo_i10.xml
-```
-
-## Important model limitations
-
-- The current `magnetic_gain` is a simulation calibration value, not a paper-identified hardware parameter.
-- The capsule magnetic moment magnitude is not numerically specified by the DEMA paper; the project currently uses a test value.
-- The present capsule mass remains 7.0 g by project choice, while the paper mentions approximately 7.6 g.
-- AUBO joint/servo dynamics are not yet modeled as hardware dynamics. For the stationary Z-hover experiment only the DEMA pose uncertainty is included.
-- XYZ/AUBO motion control is intentionally not part of the active pipeline yet.
+tests/
+    test_noise_models.py
