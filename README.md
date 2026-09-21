@@ -133,10 +133,10 @@ scripts/
     test_z_plant_open_loop.py
 
 src/endoscopy_capsule_control/
-    control/       # PID, allocator, Z controller
-    magnetic/      # magnetic field / wrench model
-    plant/         # fluid, localization, power supply, robot uncertainty
-    simulation/    # MuJoCo, AUBO IK, viewer, simulation loop
+    control/       # đây là bdk PID+FF
+    magnetic/      # động lực học từ
+    plant/         # toàn bộ plant từ sai số localization, nguồn, robpt
+    simulation/    # MuJoCo, AUBO IK, viewer
     models/        # AUBO i10 XML + meshes
     config.py
 
