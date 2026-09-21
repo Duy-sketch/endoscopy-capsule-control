@@ -1,22 +1,18 @@
-Project mô phỏng điều khiển capsule nội soi từ tính bằng hệ DEMA (Dual-Electromagnet Actuation) gắn trên robot AUBO i10, sử dụng MuJoCo.
+Project mô phỏng điều khiển viên nang nội soi từ tính bằng hệ DEMA (Dual-Electromagnet Actuation) gắn trên robot AUBO i10, sử dụng MuJoCo.
 
 Hiện tại project tập trung vào plant và điều khiển Z-hovering. Các phần XY/XYZ sẽ được phát triển lại sau trên nền plant hiện tại.
 
 1. Mục tiêu hiện tại
+- Mô phỏng capsule trong môi trường chất lỏng
+- Tính lực và mô-men từ do hai electromagnet tạo ra.
+- Điều khiển capsule giữ độ cao theo trục Z.
+- Mô phỏng các sai số thực tế:
 
-Mô phỏng capsule trong chất lỏng.
++ nhiễu dòng điện của bộ nguồn,
 
-Tính lực và mô-men từ do hai electromagnet tạo ra.
++ nhiễu localization,
 
-Điều khiển capsule giữ độ cao theo trục Z.
-
-Mô phỏng các sai số thực tế:
-
-nhiễu dòng điện của bộ nguồn,
-
-nhiễu localization,
-
-sai số vị trí của AUBO i10.
++ sai số vị trí của AUBO i10.
 
 Cho phép bật/tắt từng loại nhiễu để test controller.
 
