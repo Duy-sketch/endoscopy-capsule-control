@@ -14,20 +14,28 @@ Hiện tại project tập trung vào plant và điều khiển Z-hovering. Các
 Cho phép bật/tắt từng loại nhiễu để test controller.
 Luồng chính:
 Z target
+
    ↓
 Z controller
+
    ↓
 Current command
+
    ↓
 Power supply model + current noise
+
    ↓
 Magnetic force
+
    ↓
 Capsule dynamics + fluid + gravity
+
    ↓
 True state
+
    ↓
 Localization + noise
+
    ↓
 Measured state → controller
 
