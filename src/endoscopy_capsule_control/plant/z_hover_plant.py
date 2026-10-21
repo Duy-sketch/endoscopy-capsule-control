@@ -16,7 +16,7 @@ The controller is intentionally absent from this module.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -79,9 +79,11 @@ class ZHoverPlant:
         noise: NoiseSwitches | None = None,
         seed: int = 1,
         x_offset_m: float = 0.0,
+        y_offset_m: float = 0.0,
         z_offset_m: float = 0.0,
         theta_y_offset_rad: float = 0.0,
         initial_current_A=(-15.0, 15.0),
+        vertical: bool = False,
     ) -> None:
         self.config = config
         self.noise = NoiseSwitches.none() if noise is None else noise
@@ -93,7 +95,7 @@ class ZHoverPlant:
         supply_seed, localization_seed, robot_seed = seed_sequence.spawn(3)
 
         self.system = MujocoSystem()
-        initialize_hover_operating_point(self.system)
+        initialize_hover_operating_point(self.system, vertical=vertical)
 
         self.physics_dt = float(self.system.timestep)
         if not np.isclose(
@@ -120,6 +122,7 @@ class ZHoverPlant:
             system=self.system,
             magnetic_moment_body=self.magnetic_moment_body,
             x_offset=float(x_offset_m),
+            y_offset=float(y_offset_m),
             z_offset=float(z_offset_m),
             theta_y_offset=float(theta_y_offset_rad),
         )
@@ -158,6 +161,18 @@ class ZHoverPlant:
             dynamic_viscosity_value=self.dynamic_viscosity,
             diameter=self.config.capsule.diameter,
         )
+
+        # Finite stationary oil box from MJCF. XML dimensions are the source
+        # of truth, so moving/resizing the tank updates fluid bounds as well.
+        try:
+            self.oil_geom_id = self.system.model.geom("oil_volume").id
+        except KeyError as exc:
+            raise RuntimeError("Finite-fluid plant requires the updated aubo_i10.xml (oil_volume)") from exc
+        if not np.allclose(self.system.data.geom_xmat[self.oil_geom_id].reshape(3, 3), np.eye(3)):
+            raise ValueError("oil_volume must be aligned with world axes")
+        self._oil_points, self._oil_weights = capsule_volume_quadrature(
+            self.config.capsule.length, self.config.capsule.diameter)
+        self.last_submerged_fraction = 1.0
 
         # Build a valid initial wrench record for diagnostics.  No force is
         # applied here; it is only a placeholder until the first step().
@@ -220,6 +235,32 @@ class ZHoverPlant:
             true_theta_y_rad=theta_y,
         )
 
+    def submerged_volume_state(self, state):
+        """Approximate submerged fraction and centroid using volume quadrature.
+
+        Partial-immersion drag is scaled by volume fraction, an engineering
+        approximation. No waves, surface tension, added mass or wall-corrected
+        drag are modeled. Full immersion preserves the previous drag law.
+        """
+        center=self.system.data.geom_xpos[self.oil_geom_id]
+        half=self.system.model.geom_size[self.oil_geom_id]
+        lo, hi=center-half, center+half
+        position=state.position_world
+        rotation=state.rotation_world_body
+        radius=self.config.capsule.diameter/2
+        cylinder_half=self.config.capsule.length/2-radius
+        extent=radius+cylinder_half*np.abs(rotation[:,2])
+        if np.all(position-extent>=lo) and np.all(position+extent<=hi):
+            return 1.0, position.copy()
+        if np.any(position+extent<=lo) or np.any(position-extent>=hi):
+            return 0.0, position.copy()
+        points=self._oil_points@rotation.T+position
+        inside=np.all((points>=lo)&(points<=hi),axis=1)
+        weights=self._oil_weights[inside]
+        fraction=float(weights.sum())
+        centroid=(weights@points[inside])/fraction if fraction>0 else position.copy()
+        return fraction, centroid
+
     def step(self, current_command_A) -> ZHoverPlantSnapshot:
         """Advance the physical plant by one MuJoCo physics step."""
 
@@ -248,17 +289,27 @@ class ZHoverPlant:
             gradient_step=self.config.electromagnet.magnetic_gradient_step,
         )
 
+        fraction, buoyancy_center = self.submerged_volume_state(state_before)
+        self.last_submerged_fraction = fraction
         external_wrench = compute_capsule_external_wrench(
             magnetic_force_world=magnetic_force_world,
             magnetic_torque_world=magnetic_torque_world,
             linear_velocity_world=state_before.linear_velocity_world,
             angular_velocity_world=state_before.angular_velocity_world,
             fluid_density=self.config.fluid.density,
-            capsule_volume_value=self.capsule_volume,
+            capsule_volume_value=self.capsule_volume * fraction,
             gravity_world=self.system.model.opt.gravity,
-            translational_drag_coefficient=self.drag_coefficient,
-            rotational_damping=self.config.fluid.rotational_damping,
+            translational_drag_coefficient=self.drag_coefficient * fraction,
+            rotational_damping=self.config.fluid.rotational_damping * fraction,
         )
+
+        # Buoyancy acts through submerged-volume centroid. In a partial
+        # immersion this can add torque; full immersion uses the body center.
+        com = self.system.data.xipos[self.system.body_id("MCE")]
+        buoyancy_torque = np.cross(buoyancy_center - com,
+                                   external_wrench.buoyancy_force_world)
+        external_wrench = replace(external_wrench,
+            total_torque_world=external_wrench.total_torque_world + buoyancy_torque)
 
         apply_capsule_external_wrench(
             system=self.system,
@@ -283,3 +334,27 @@ class ZHoverPlant:
             power_supply=supply_sample,
             external_wrench=external_wrench,
         )
+
+
+def capsule_volume_quadrature(length, diameter):
+    """Body-frame axial quadrature and equal-area disk samples; weights sum 1."""
+    radius=diameter/2
+    h=length/2-radius
+    if radius<=0 or h<0:
+        raise ValueError("Invalid capsule dimensions")
+    nodes, weights=np.polynomial.legendre.leggauss(24)
+    zs=[]; ws=[]
+    for lower,upper in [(-h-radius,-h),(-h,h),(h,h+radius)]:
+        zs.extend((upper+lower)/2+(upper-lower)/2*nodes)
+        ws.extend((upper-lower)/2*weights)
+    points=[]; volumes=[]
+    for z,w in zip(zs,ws):
+        cross_radius=np.sqrt(max(0.,radius**2-max(abs(z)-h,0.)**2))
+        for j in range(4):
+            radial=cross_radius*np.sqrt((j+.5)/4)
+            for k in range(12):
+                phi=2*np.pi*(k+.5)/12
+                points.append([radial*np.cos(phi),radial*np.sin(phi),z])
+                volumes.append(w*np.pi*cross_radius**2/48)
+    volumes=np.array(volumes)
+    return np.array(points),volumes/volumes.sum()

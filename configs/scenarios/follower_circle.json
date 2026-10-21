@@ -1,0 +1,15 @@
+{
+  "mode": "follow",
+  "trajectory": "circle",
+  "radius_mm": 10,
+  "move_time": 30,
+  "time": 35,
+  "x0_mm": 0,
+  "noise": ["none"],
+  "seed": 42,
+  "current_tau_ms": 0,
+  "localization_delay_ms": 0,
+  "camera": "tank",
+  "plot": true,
+  "csv": "results/follower_circle.csv"
+}

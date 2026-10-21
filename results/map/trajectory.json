@@ -1,0 +1,1089 @@
+{
+  "schema_version": 2,
+  "status": "viewer closed",
+  "actual_time_s": 1.9169999999998997,
+  "arguments": {
+    "mode": "path",
+    "axis": "x",
+    "trajectory": "line",
+    "radius_mm": 5.0,
+    "distance_mm": 5.0,
+    "move_time": 356.25,
+    "time": 361.25,
+    "x0_mm": -100.0,
+    "y0_mm": -85.0,
+    "z0_mm": 0.0,
+    "theta0_deg": 0.0,
+    "headless": false,
+    "plot": true,
+    "camera": "overview",
+    "table_clearance_mm": 10.0,
+    "no_leader_feedforward": false,
+    "noise": [
+      "all"
+    ],
+    "current_tau_ms": 10.0,
+    "localization_delay_ms": 10.0,
+    "seed": 42,
+    "settling_time": 0.0,
+    "open_loop": false,
+    "csv": "results\\map\\trajectory.csv",
+    "scenario": "configs\\scenarios\\map.json",
+    "target_mm": null,
+    "speed_mm_s": null,
+    "path": {
+      "goal_xy_mm": [
+        100,
+        0
+      ],
+      "obstacles_x_y_radius_mm": [
+        [
+          -45,
+          65,
+          20
+        ],
+        [
+          -45,
+          -25,
+          18
+        ]
+      ],
+      "center_bounds_mm": [
+        -125,
+        125,
+        -125,
+        125
+      ],
+      "grid_mm": 2,
+      "margin_mm": 3,
+      "speed_mm_s": 2,
+      "acceleration_mm_s2": 2,
+      "warmup_s": 2,
+      "hold_s": 5,
+      "goal_tolerance_mm": 2,
+      "goal_speed_mm_s": 0.5,
+      "goal_hold_s": 1,
+      "walls_cx_cy_width_height_mm": [
+        [
+          -45,
+          -85,
+          12,
+          82
+        ],
+        [
+          40,
+          25,
+          12,
+          182
+        ]
+      ]
+    }
+  },
+  "config": {
+    "simulation": {
+      "physics_dt": 0.001,
+      "control_dt": 0.01,
+      "simulation_time": 10.0
+    },
+    "capsule": {
+      "mass": 0.007,
+      "length": 0.03,
+      "diameter": 0.0114,
+      "moment_body": [
+        0.0,
+        0.0,
+        0.05
+      ]
+    },
+    "fluid": {
+      "density": 965.0,
+      "kinematic_viscosity": 0.0001,
+      "rotational_damping": 3e-05
+    },
+    "electromagnet": {
+      "magnetic_gain": 106.092028004,
+      "current_abs_max": 20.0,
+      "differential_current_min": 0.0,
+      "differential_current_max": 20.0,
+      "magnetic_gradient_step": 1e-05
+    },
+    "power_supply": {
+      "model_name": "Kepco BOP 20-20 equivalent",
+      "current_abs_max": 20.0,
+      "current_noise_rms_A": 0.006,
+      "response_time_constant_s": 0.01
+    },
+    "localization": {
+      "position_noise_std_m": 0.0009295339333952975,
+      "theta_y_noise_std_rad": 0.0,
+      "delay_samples": 1
+    },
+    "aubo_i10": {
+      "position_repeatability_m": 5e-05,
+      "position_bias_sigma_m": 1.6666666666666667e-05
+    },
+    "aubo_motion": {
+      "max_linear_speed_mps": 0.005,
+      "max_linear_acceleration_mps2": 0.02,
+      "position_kp_per_s": 2.0,
+      "ik_damping": 0.001,
+      "max_joint_speed_rad_s": 0.8,
+      "jacobian_translation_probe_m": 0.0005,
+      "jacobian_gamma_probe": 0.01
+    },
+    "xyz_control": {
+      "target_position_lcs_m": [
+        0.0,
+        0.0,
+        0.1
+      ],
+      "natural_frequency_rad_s": [
+        2.0,
+        2.0,
+        5.0
+      ],
+      "damping_ratio": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "integral_pole_per_s": [
+        0.5,
+        0.5,
+        1.0
+      ],
+      "derivative_filter_tau_s": 0.04,
+      "integral_limit_m_s": [
+        0.02,
+        0.02,
+        0.02
+      ],
+      "pid_force_limit_N": [
+        0.005,
+        0.005,
+        0.02
+      ],
+      "nominal_currents_A": [
+        -15.0,
+        15.0
+      ],
+      "gamma_nominal": 1.0,
+      "gamma_min": 0.5,
+      "gamma_max": 1.3,
+      "max_gamma_step": 0.05,
+      "jacobian_translation_probe_m": 0.0005,
+      "jacobian_gamma_probe": 0.01,
+      "max_dema_target_offset_m": [
+        0.02,
+        0.02,
+        0.02
+      ],
+      "allocator_force_scale_N": [
+        0.001,
+        0.001,
+        0.003
+      ],
+      "allocator_robot_regularization": 0.02,
+      "allocator_gamma_regularization": 0.01,
+      "allocator_gamma_centering_weight": 0.05,
+      "allocator_force_residual_tolerance_N": 0.0005
+    },
+    "z_control": {
+      "z_ref": 0.1,
+      "natural_frequency": 5.0,
+      "damping_ratio": 1.0,
+      "integral_pole": 1.0,
+      "derivative_filter_tau": 0.03,
+      "integral_limit": 0.02,
+      "pid_force_limit": 0.02,
+      "feedforward_force": -0.043353877,
+      "desired_force_min": -0.1,
+      "desired_force_max": 0.0
+    }
+  },
+  "runtime": {
+    "python": "3.13.5",
+    "numpy": "2.4.4",
+    "mujoco": "3.11.0"
+  },
+  "sha256": {
+    "report_module": "19223caae4b542ac94ea6e9faf4c1693397c151a575655aa6de8ba59fa0c0dc4",
+    "model_xml": "85c4e3b952be8e4caedb1076ce9082ec2a0cb4cf5c8d965cb5903dd8d94165b1"
+  },
+  "initial_common_current_A": 4.227959349170413,
+  "clearance_query_cap_mm": 10.001,
+  "robot_fixed_bias_world_m": [
+    -2.7489983598974446e-05,
+    2.3433316332275784e-05,
+    1.2057853004772519e-05
+  ],
+  "model_notes": [
+    "Uncalibrated lab model; tank and magnetic parameters require measurement.",
+    "Z PID+FF; passive capsule XY and rotation; robot follows prescribed path.",
+    "Current source starts prebiased at nominal current; no power-on transient.",
+    "Source tau is an effective first-order current response, not a voltage-limited coil model.",
+    "Delay is applied to LCS measurements; startup holds the first available sample.",
+    "Random-noise switches do not disable deterministic delay or current response.",
+    "Clearance values at query cap are lower bounds, not exact distances.",
+    "XML hash does not fingerprint external mesh assets."
+  ],
+  "source_sha256": {
+    "__init__.py": "8be09adc0a14d65a6bd4f9b50e0407eda40ce9a980fcd509309fddd3459478e0",
+    "config.py": "739cea544cd47ac1bf4eed0abb0ee1f7782ba1461a5e4a367be10afa671c98ac",
+    "control\\__init__.py": "ef1ed26e55c50856a0cac1c411d60211750575a889525c35e72d1bbe68ca72f0",
+    "control\\actuation_jacobian.py": "7dd1aed57c651f555e06afd92734bdd78118b8ef8561f034cc47e6f538ae702c",
+    "control\\allocator.py": "2ba7d436415599458d90a08cf0ab712c8b3325a0732fe5485eeff85593b200be",
+    "control\\common_current_z.py": "8889371a9edfe9f1fde72c6064d590f44aa4fc3c6fd1609bd0e98965c2ecf0c0",
+    "control\\pid_z.py": "3716ac8f0cc4e87632e17fe93ab59c704a4930f572b08dd7e4a760f0b14949e1",
+    "control\\robot_current_allocator.py": "b3739c87ad80c38ebb0ef500af33cc2bae0e1dd90c82f55dbccfb5082e74946d",
+    "control\\vertical_allocator.py": "b31936c5a08e483628cf282051ceafb9ab5c4c7b83dd6e93f438cc955d0a6f46",
+    "control\\xyz_pid_ff.py": "cd34fd5f4550357eb71cad380a98a8a980291b4a144f9d0afdf2c7d9ae5832cd",
+    "control\\z_hover_controller.py": "8bd67b173a6f59add4cbe92be571fcb9f8506b891f40b89316d168c47951ca39",
+    "evaluation\\__init__.py": "e3bc75d8ca6dadeec879d67a3ec21874cfad06b4cb0a2b860d9a39d488bb7ef2",
+    "evaluation\\results.py": "19223caae4b542ac94ea6e9faf4c1693397c151a575655aa6de8ba59fa0c0dc4",
+    "magnetic\\__init__.py": "d60c31317b79b5d6a44a0b592550f88c157ee6530c42d47162caa96fc499ed66",
+    "magnetic\\capsule_magnet.py": "360dcfa38a30ae484b885be4c860f12a2ef9d2f42e11a6607ccf9e8a3bece422",
+    "magnetic\\dipole.py": "98fb1948aea85f01c383527adad7f12514edc045631945c1fe84a292c70b6844",
+    "magnetic\\wrench.py": "aa054172f88c4bf1e9c5dbe8808cb3a80fd7646a6c19e3ac8becd7d4ff47f61e",
+    "planning\\__init__.py": "76126a196a9cccb7cf177969eb5bda5664d4e64f21e317599de2a4548b8d247c",
+    "planning\\astar.py": "79b1beb10d45c503967180fdaa072e41e610cbcaa61d89f47e3f0ea42c9620e6",
+    "planning\\collision.py": "44577694619d9f9db8de57e5aabf6828a2b4b8dc75015164ff3839e19f435ec0",
+    "planning\\environment.py": "51724957c2bfe3156be93cd90a199affd7c7965b570edbe4f6af9618adfc7695",
+    "planning\\trajectory.py": "1e7b428a498d3ab4b8b85d0bf553ebfd2dbf789574d19a547d896ad9fb07a2ee",
+    "plant\\__init__.py": "3c3210ce549b2da644151c88e1e163c4dd7840a12f9606f8304d3e72dd52491e",
+    "plant\\fluid.py": "17d0ed35d35f0e06189557e2f9d06e5501eb09239a94c68474c4aa718cda1c17",
+    "plant\\localization.py": "1c471f8e02ab7c6ccba25e2419d971877b28fcc06ff23f342d69712341fb43d8",
+    "plant\\noise.py": "0a57b1f8d4cc9788c15e5ef315d675079bce90496cbaaee09dc785eb6464f2b0",
+    "plant\\power_supply.py": "b85d0a4ed562c1adf31ed4195203eeca0645a62eae11332f7292ed8fed14b910",
+    "plant\\robot_uncertainty.py": "646fdc7fd895628093662409a3c60c12d2e9cace5b49a36b46d9abd73e8f798b",
+    "plant\\z_hover_plant.py": "e6f7c8619b88d94943c49767d5dd3031b6d4852309ad92e43fe3aa52f541e31a",
+    "simulation\\__init__.py": "70df59e8cb51262b1c86c9b77f55474ce767e1a5d877395c972af8141aebfa8e",
+    "simulation\\aubo_cartesian_controller.py": "b4fd899ea0ef6fd6216ba4cb64d154c52d3a6f08ebc958b88461fbcb2004241c",
+    "simulation\\aubo_ik.py": "96aac8a4fc7bcd866721dd2eaa7e7ab3e20b80051559b65096047418e213718a",
+    "simulation\\capsule_state.py": "a4777d511a36bdba2545c75f8643cb467055dc4b1db5a4b4148ea966ce68b164",
+    "simulation\\capsule_wrench.py": "68865663ccd111b051f6346bde2b6a35555501d68d196edad65b2d2d22d46749",
+    "simulation\\dema_geometry.py": "43c3618f187ceb2014e7968f2dd0caa6b05f0ef722607182c79b16da13b6c749",
+    "simulation\\follower_options.py": "24f303b5abe1ae70c67af4cb972c8b868e307d688ce1ad32415a4d6806f4b653",
+    "simulation\\follower_scan.py": "e5384029126afa15626a38b70743d717c62cee5f7c0ad0cf9000c56d277f7559",
+    "simulation\\initialization.py": "99bfaf619f9d271a86c8ffc094171f073893fd8bc8fc6ab8c0afcaf6349e190d",
+    "simulation\\mujoco_system.py": "6a0a70fe8fd158188a666e68248722c10e9bd122c5a2c6dae889982ac370b267",
+    "simulation\\path_simulation.py": "f0fca6b36525bfff27620d731bc0038c254ef26c9f6ea296bf455712ed28246e",
+    "simulation\\perturbation.py": "403dc2bc1909b2c018b0be575af9013c123a7d5f8d25eadd3b6e7736df92416f",
+    "simulation\\safety.py": "99fea1b56d5e928edb50101d384e0fc90d19639bebb18fe4f4b929ecce8f84ee",
+    "simulation\\scene_builder.py": "b935f03bc65beb1c1d5bac692ef58ea3d21585fb75fdda1cdc6d9ed4b868eaed",
+    "simulation\\viewer.py": "8134ade19c25e3716934a90eeeed6d3c557c9eece8a0cf11effd83fc305c5d45",
+    "simulation\\xyz_simulation.py": "2d6eff88d1429a8327ef092091998a87df237b7a98d87edc4ac02ad60e181119",
+    "simulation\\z_hover_simulation.py": "b41c203817b2648a221de1d58da95743e82aaff11a8e4ad31d37c2027d3ee24d"
+  },
+  "metrics": {
+    "max_abs_z_error_mm": 1.6704280684870092,
+    "final_alignment_deg": 0.004402937680390932,
+    "max_alignment_deg": 0.03364278366036258,
+    "max_capsule_tilt_from_world_vertical_deg": 0.024063708995983726,
+    "max_field_tilt_from_world_vertical_deg": 0.037396551746015916,
+    "minimum_sampled_clearance_mm": 10.001,
+    "clean_current_tracking_rms_A": [
+      0.14005855484702728,
+      0.14005855484702728
+    ]
+  },
+  "planning": {
+    "frame": "initial nominal DEMA frame fixed in world; coordinates mm",
+    "obstacles_x_y_radius_mm": [
+      [
+        -45.0,
+        65.0,
+        20.0
+      ],
+      [
+        -45.0,
+        -25.0,
+        18.0
+      ]
+    ],
+    "walls_cx_cy_width_height_mm": [
+      [
+        -45.0,
+        -85.0,
+        12.0,
+        82.0
+      ],
+      [
+        40.0,
+        25.0,
+        12.0,
+        182.0
+      ]
+    ],
+    "inflated_radius_mm": [
+      38.0,
+      36.0
+    ],
+    "capsule_bounding_sphere_radius_mm": 15.0,
+    "safety_margin_mm": 3.0,
+    "center_bounds_mm": [
+      -125.0,
+      125.0,
+      -125.0,
+      125.0
+    ],
+    "raw_path_xy_mm": [
+      [
+        -100.0,
+        -85.0
+      ],
+      [
+        -99.0,
+        -83.0
+      ],
+      [
+        -97.0,
+        -81.0
+      ],
+      [
+        -95.0,
+        -79.0
+      ],
+      [
+        -93.0,
+        -77.0
+      ],
+      [
+        -91.0,
+        -75.0
+      ],
+      [
+        -89.0,
+        -73.0
+      ],
+      [
+        -87.0,
+        -71.0
+      ],
+      [
+        -85.0,
+        -69.0
+      ],
+      [
+        -83.0,
+        -67.0
+      ],
+      [
+        -83.0,
+        -65.0
+      ],
+      [
+        -83.0,
+        -63.0
+      ],
+      [
+        -83.0,
+        -61.0
+      ],
+      [
+        -83.0,
+        -59.0
+      ],
+      [
+        -83.0,
+        -57.0
+      ],
+      [
+        -83.0,
+        -55.0
+      ],
+      [
+        -83.0,
+        -53.0
+      ],
+      [
+        -83.0,
+        -51.0
+      ],
+      [
+        -83.0,
+        -49.0
+      ],
+      [
+        -83.0,
+        -47.0
+      ],
+      [
+        -83.0,
+        -45.0
+      ],
+      [
+        -83.0,
+        -43.0
+      ],
+      [
+        -83.0,
+        -41.0
+      ],
+      [
+        -83.0,
+        -39.0
+      ],
+      [
+        -83.0,
+        -37.0
+      ],
+      [
+        -83.0,
+        -35.0
+      ],
+      [
+        -83.0,
+        -33.0
+      ],
+      [
+        -83.0,
+        -31.0
+      ],
+      [
+        -83.0,
+        -29.0
+      ],
+      [
+        -83.0,
+        -27.0
+      ],
+      [
+        -83.0,
+        -25.0
+      ],
+      [
+        -81.0,
+        -23.0
+      ],
+      [
+        -81.0,
+        -21.0
+      ],
+      [
+        -81.0,
+        -19.0
+      ],
+      [
+        -81.0,
+        -17.0
+      ],
+      [
+        -81.0,
+        -15.0
+      ],
+      [
+        -79.0,
+        -13.0
+      ],
+      [
+        -79.0,
+        -11.0
+      ],
+      [
+        -79.0,
+        -9.0
+      ],
+      [
+        -77.0,
+        -7.0
+      ],
+      [
+        -75.0,
+        -5.0
+      ],
+      [
+        -75.0,
+        -3.0
+      ],
+      [
+        -73.0,
+        -1.0
+      ],
+      [
+        -71.0,
+        1.0
+      ],
+      [
+        -69.0,
+        3.0
+      ],
+      [
+        -67.0,
+        5.0
+      ],
+      [
+        -65.0,
+        5.0
+      ],
+      [
+        -63.0,
+        7.0
+      ],
+      [
+        -61.0,
+        9.0
+      ],
+      [
+        -59.0,
+        9.0
+      ],
+      [
+        -57.0,
+        9.0
+      ],
+      [
+        -55.0,
+        11.0
+      ],
+      [
+        -53.0,
+        11.0
+      ],
+      [
+        -51.0,
+        11.0
+      ],
+      [
+        -49.0,
+        11.0
+      ],
+      [
+        -47.0,
+        11.0
+      ],
+      [
+        -45.0,
+        13.0
+      ],
+      [
+        -43.0,
+        13.0
+      ],
+      [
+        -41.0,
+        13.0
+      ],
+      [
+        -39.0,
+        13.0
+      ],
+      [
+        -37.0,
+        13.0
+      ],
+      [
+        -35.0,
+        13.0
+      ],
+      [
+        -33.0,
+        13.0
+      ],
+      [
+        -31.0,
+        13.0
+      ],
+      [
+        -29.0,
+        11.0
+      ],
+      [
+        -27.0,
+        9.0
+      ],
+      [
+        -25.0,
+        7.0
+      ],
+      [
+        -23.0,
+        5.0
+      ],
+      [
+        -21.0,
+        3.0
+      ],
+      [
+        -19.0,
+        1.0
+      ],
+      [
+        -17.0,
+        -1.0
+      ],
+      [
+        -15.0,
+        -3.0
+      ],
+      [
+        -13.0,
+        -5.0
+      ],
+      [
+        -11.0,
+        -7.0
+      ],
+      [
+        -9.0,
+        -9.0
+      ],
+      [
+        -7.0,
+        -11.0
+      ],
+      [
+        -5.0,
+        -13.0
+      ],
+      [
+        -3.0,
+        -15.0
+      ],
+      [
+        -1.0,
+        -17.0
+      ],
+      [
+        1.0,
+        -19.0
+      ],
+      [
+        3.0,
+        -21.0
+      ],
+      [
+        5.0,
+        -23.0
+      ],
+      [
+        7.0,
+        -25.0
+      ],
+      [
+        9.0,
+        -27.0
+      ],
+      [
+        11.0,
+        -29.0
+      ],
+      [
+        13.0,
+        -31.0
+      ],
+      [
+        15.0,
+        -33.0
+      ],
+      [
+        15.0,
+        -35.0
+      ],
+      [
+        15.0,
+        -37.0
+      ],
+      [
+        15.0,
+        -39.0
+      ],
+      [
+        15.0,
+        -41.0
+      ],
+      [
+        15.0,
+        -43.0
+      ],
+      [
+        15.0,
+        -45.0
+      ],
+      [
+        15.0,
+        -47.0
+      ],
+      [
+        15.0,
+        -49.0
+      ],
+      [
+        15.0,
+        -51.0
+      ],
+      [
+        15.0,
+        -53.0
+      ],
+      [
+        15.0,
+        -55.0
+      ],
+      [
+        15.0,
+        -57.0
+      ],
+      [
+        15.0,
+        -59.0
+      ],
+      [
+        15.0,
+        -61.0
+      ],
+      [
+        15.0,
+        -63.0
+      ],
+      [
+        15.0,
+        -65.0
+      ],
+      [
+        15.0,
+        -67.0
+      ],
+      [
+        15.0,
+        -69.0
+      ],
+      [
+        15.0,
+        -71.0
+      ],
+      [
+        17.0,
+        -73.0
+      ],
+      [
+        17.0,
+        -75.0
+      ],
+      [
+        19.0,
+        -77.0
+      ],
+      [
+        21.0,
+        -79.0
+      ],
+      [
+        23.0,
+        -81.0
+      ],
+      [
+        25.0,
+        -83.0
+      ],
+      [
+        27.0,
+        -83.0
+      ],
+      [
+        29.0,
+        -85.0
+      ],
+      [
+        31.0,
+        -85.0
+      ],
+      [
+        33.0,
+        -85.0
+      ],
+      [
+        35.0,
+        -85.0
+      ],
+      [
+        37.0,
+        -85.0
+      ],
+      [
+        39.0,
+        -85.0
+      ],
+      [
+        41.0,
+        -85.0
+      ],
+      [
+        43.0,
+        -85.0
+      ],
+      [
+        45.0,
+        -85.0
+      ],
+      [
+        47.0,
+        -85.0
+      ],
+      [
+        49.0,
+        -85.0
+      ],
+      [
+        51.0,
+        -85.0
+      ],
+      [
+        53.0,
+        -83.0
+      ],
+      [
+        55.0,
+        -83.0
+      ],
+      [
+        57.0,
+        -81.0
+      ],
+      [
+        59.0,
+        -79.0
+      ],
+      [
+        61.0,
+        -77.0
+      ],
+      [
+        63.0,
+        -75.0
+      ],
+      [
+        65.0,
+        -73.0
+      ],
+      [
+        67.0,
+        -71.0
+      ],
+      [
+        69.0,
+        -69.0
+      ],
+      [
+        69.0,
+        -67.0
+      ],
+      [
+        71.0,
+        -65.0
+      ],
+      [
+        71.0,
+        -63.0
+      ],
+      [
+        73.0,
+        -61.0
+      ],
+      [
+        73.0,
+        -59.0
+      ],
+      [
+        75.0,
+        -57.0
+      ],
+      [
+        75.0,
+        -55.0
+      ],
+      [
+        75.0,
+        -53.0
+      ],
+      [
+        77.0,
+        -51.0
+      ],
+      [
+        77.0,
+        -49.0
+      ],
+      [
+        79.0,
+        -47.0
+      ],
+      [
+        79.0,
+        -45.0
+      ],
+      [
+        81.0,
+        -43.0
+      ],
+      [
+        81.0,
+        -41.0
+      ],
+      [
+        83.0,
+        -39.0
+      ],
+      [
+        83.0,
+        -37.0
+      ],
+      [
+        85.0,
+        -35.0
+      ],
+      [
+        85.0,
+        -33.0
+      ],
+      [
+        85.0,
+        -31.0
+      ],
+      [
+        87.0,
+        -29.0
+      ],
+      [
+        87.0,
+        -27.0
+      ],
+      [
+        89.0,
+        -25.0
+      ],
+      [
+        89.0,
+        -23.0
+      ],
+      [
+        91.0,
+        -21.0
+      ],
+      [
+        91.0,
+        -19.0
+      ],
+      [
+        93.0,
+        -17.0
+      ],
+      [
+        93.0,
+        -15.0
+      ],
+      [
+        95.0,
+        -13.0
+      ],
+      [
+        95.0,
+        -11.0
+      ],
+      [
+        95.0,
+        -9.0
+      ],
+      [
+        97.0,
+        -7.0
+      ],
+      [
+        97.0,
+        -5.0
+      ],
+      [
+        99.0,
+        -3.0
+      ],
+      [
+        100.0,
+        0.0
+      ]
+    ],
+    "path_xy_mm": [
+      [
+        -100.0,
+        -85.0
+      ],
+      [
+        -79.0,
+        -9.0
+      ],
+      [
+        -67.0,
+        5.0
+      ],
+      [
+        -53.0,
+        11.0
+      ],
+      [
+        -31.0,
+        13.0
+      ],
+      [
+        15.0,
+        -37.0
+      ],
+      [
+        15.0,
+        -71.0
+      ],
+      [
+        21.0,
+        -79.0
+      ],
+      [
+        29.0,
+        -85.0
+      ],
+      [
+        51.0,
+        -85.0
+      ],
+      [
+        59.0,
+        -79.0
+      ],
+      [
+        75.0,
+        -55.0
+      ],
+      [
+        100.0,
+        0.0
+      ]
+    ],
+    "length_mm": 377.8101031895108,
+    "segment_durations_s": [
+      73.92,
+      17.29,
+      14.280000000000001,
+      20.72,
+      63.7,
+      31.88,
+      9.38,
+      9.38,
+      20.63,
+      9.38,
+      27.05,
+      56.64
+    ],
+    "warmup_s": 2.0,
+    "motion_end_s": 356.25,
+    "peak_speed_mm_s": 1.9999988573276641,
+    "method": "8-neighbor A* with exact endpoint connectors; analytic segment-circle and rounded-rectangle clearance; greedy shortcuts; segmentwise quintic"
+  },
+  "path_metrics": {
+    "success": false,
+    "goal_held": false,
+    "goal_hold_s": 0.0,
+    "final_xy_error_mm": 217.34467734110518,
+    "min_obstacle_envelope_clearance_mm": 34.000000000000185,
+    "margin_violation_physics_steps": 0,
+    "notes": "Success evaluates XY goal and conservative obstacle margin; Z quality is reported separately. Sampled checks, not continuous collision certification.",
+    "xy_rms_mm": 0.03855786705545065,
+    "fixed_z_rms_mm": 0.8635553833088263
+  }
+}

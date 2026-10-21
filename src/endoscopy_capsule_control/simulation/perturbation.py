@@ -239,6 +239,7 @@ def apply_initial_perturbation(
     system: MujocoSystem,
     magnetic_moment_body: np.ndarray,
     x_offset: float = 0.0,
+    y_offset: float = 0.0,
     z_offset: float = 0.0,
     theta_y_offset: float = 0.0,
 ) -> None:
@@ -259,6 +260,9 @@ def apply_initial_perturbation(
     x_offset
         Local-X displacement from the nominal hover position [m].
 
+    y_offset
+        Local-Y displacement from the nominal hover position [m].
+
     z_offset
         Local-Z displacement from the nominal hover position [m].
 
@@ -270,12 +274,14 @@ def apply_initial_perturbation(
     Example:
 
         x_offset = 0.001
+        y_offset = 0.001
         z_offset = 0.002
         theta_y_offset = np.deg2rad(1.0)
 
     means:
 
         x0 = x_hover + 1 mm
+        y0 = y_hover + 1 mm
         z0 = z_hover + 2 mm
         theta_y0 = theta_hover + 1 deg
 
@@ -310,7 +316,7 @@ def apply_initial_perturbation(
         + np.array(
             [
                 float(x_offset),
-                0.0,
+                float(y_offset),
                 float(z_offset),
             ],
             dtype=float,

@@ -3,7 +3,7 @@
 The controller sees measurements and a reported DEMA geometry only.
 It never reads MuJoCo qpos and it never adds plant noise itself.
 
-For the current Z-only experiment:
+For the legacy horizontal experiment:
 
     Ic = 0
     I1 = -Id
@@ -11,6 +11,9 @@ For the current Z-only experiment:
 
 A feedforward term compensates the nominal vertical load and a PID
 correction regulates measured capsule Z position.
+The vertical mode instead sets the planar field direction to local +Z and
+allocates its magnitude for the requested Z force. Capsule angle is not
+regulated by an angular PID.
 """
 
 from __future__ import annotations
@@ -20,6 +23,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .allocator import CurrentAllocationResult, MagneticCurrentAllocator
+from .vertical_allocator import VerticalFieldAllocator
 from .pid_z import ZPIDController, design_z_pid_gains
 
 
@@ -46,7 +50,7 @@ class ZHoverControlOutput:
 
 
 class ZHoverController:
-    """Feedforward + PID Z-hover controller using differential current."""
+    """Feedforward + PID Z-hover with selectable magnetic allocation."""
 
     def __init__(
         self,
@@ -69,6 +73,7 @@ class ZHoverController:
         differential_current_max: float,
         gradient_step: float,
         em_gain: float,
+        vertical: bool = False,
     ) -> None:
         self.z_ref = float(z_ref)
         self.feedforward_force_z = float(feedforward_force_z)
@@ -98,6 +103,9 @@ class ZHoverController:
             common_current_abs_max=0.0,
             gradient_step=float(gradient_step),
         )
+
+        if vertical:
+            self.allocator = VerticalFieldAllocator(current_abs_max, gradient_step)
 
     def reset(self, *, initial_z: float, z_ref: float | None = None) -> None:
         reference = self.z_ref if z_ref is None else float(z_ref)

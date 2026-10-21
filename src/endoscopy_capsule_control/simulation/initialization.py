@@ -228,6 +228,7 @@ def initialize_aubo_work_pose(
 def initialize_mce_hover_pose(
     system: MujocoSystem,
     hover_position_lcs: np.ndarray | None = None,
+    *, vertical: bool = False,
 ) -> None:
     """
     Place the MCE at the nominal hover operating point.
@@ -236,7 +237,8 @@ def initialize_mce_hover_pose(
 
         p_MCE_LCS = [0, 0, 0.100] m
 
-    The initial orientation preserves the original XML MCE
+    With vertical=True, body +Z is aligned with DEMA local +Z.
+    Otherwise, the initial orientation preserves the original XML MCE
     orientation:
 
         quaternion = [sqrt(1/2), 0, sqrt(1/2), 0]
@@ -287,6 +289,14 @@ def initialize_mce_hover_pose(
         dtype=float,
     )
 
+    if vertical:
+        # Body +Z is the magnetic axis. Align it with DEMA +Z (downward).
+        # Only initialize the pose; all subsequent rotation is physical.
+        from .perturbation import rotation_matrix_to_quaternion_wxyz
+        quaternion_wxyz = rotation_matrix_to_quaternion_wxyz(
+            geometry.lcs_pose.rotation
+        )
+
     set_free_joint_pose(
         system=system,
         joint_name="MCE_free",
@@ -295,6 +305,7 @@ def initialize_mce_hover_pose(
     )
 def initialize_hover_operating_point(
     system: MujocoSystem,
+    *, vertical: bool = False,
 ) -> None:
     """
     Initialize the complete nominal hover operating point.
@@ -305,5 +316,5 @@ def initialize_hover_operating_point(
     )
 
     initialize_mce_hover_pose(
-        system
+        system, vertical=vertical
     )   

@@ -1,0 +1,62 @@
+{
+  "mode": "path",
+  "x0_mm": -100,
+  "y0_mm": -85,
+  "z0_mm": 0,
+  "noise": [
+    "all"
+  ],
+  "seed": 42,
+  "current_tau_ms": 10,
+  "localization_delay_ms": 10,
+  "camera": "tank",
+  "plot": true,
+  "csv": "results/map/trajectory.csv",
+  "path": {
+    "goal_xy_mm": [
+      100,
+      0
+    ],
+    "obstacles_x_y_radius_mm": [
+      [
+        -45,
+        65,
+        20
+      ],
+      [
+        -45,
+        -25,
+        18
+      ]
+    ],
+    "center_bounds_mm": [
+      -125,
+      125,
+      -125,
+      125
+    ],
+    "grid_mm": 2,
+    "margin_mm": 3,
+    "speed_mm_s": 2,
+    "acceleration_mm_s2": 2,
+    "warmup_s": 2,
+    "hold_s": 5,
+    "goal_tolerance_mm": 2,
+    "goal_speed_mm_s": 0.5,
+    "goal_hold_s": 1,
+    "walls_cx_cy_width_height_mm": [
+      [
+        -45,
+        -85,
+        12,
+        82
+      ],
+      [
+        40,
+        25,
+        12,
+        182
+      ]
+    ]
+  }
+}

@@ -92,8 +92,10 @@ class ZHoverSimulation:
         simulation_time_s: float = 10.0,
         settling_time_s: float = 5.0,
         x_offset_m: float = 0.0,
+        y_offset_m: float = 0.0,
         z_offset_m: float = 0.0,
         theta_y_offset_rad: float = 0.0,
+        vertical: bool = True,
     ) -> None:
         if simulation_time_s <= 0.0:
             raise ValueError("simulation_time_s must be positive")
@@ -102,6 +104,7 @@ class ZHoverSimulation:
                 "settling_time_s must satisfy 0 <= settling < simulation_time"
             )
 
+        self.vertical = bool(vertical)
         self.config = config
         self.noise = NoiseSwitches.none() if noise is None else noise
         self.seed = int(seed)
@@ -110,9 +113,12 @@ class ZHoverSimulation:
 
         self.plant = ZHoverPlant(
             config=self.config,
+            vertical=self.vertical,
+            initial_current_A=(0.0, 0.0) if self.vertical else (-15.0, 15.0),
             noise=self.noise,
             seed=self.seed,
             x_offset_m=float(x_offset_m),
+            y_offset_m=float(y_offset_m),
             z_offset_m=float(z_offset_m),
             theta_y_offset_rad=float(theta_y_offset_rad),
         )
@@ -157,15 +163,26 @@ class ZHoverSimulation:
             ),
             gradient_step=self.config.electromagnet.magnetic_gradient_step,
             em_gain=self.config.electromagnet.magnetic_gain,
+            vertical=self.vertical,
         )
 
-        self.current_command_A = np.array([-15.0, 15.0], dtype=float)
+        if self.vertical:
+            # Nominal gravity/buoyancy compensation in this simulation's LCS.
+            g_z = float(self.plant.reported_geometry().lcs_pose.rotation[:, 2]
+                        @ self.plant.system.model.opt.gravity)
+            self.controller.feedforward_force_z = -(
+                self.config.capsule.mass - self.config.fluid.density
+                * self.plant.capsule_volume
+            ) * g_z
+        self.current_command_A = np.zeros(2, dtype=float)
         self.last_measurement = self.plant.sample_localization()
         self.controller.reset(
             initial_z=float(self.last_measurement.position_lcs_m[2])
         )
         self._update_controller(self.last_measurement)
+        self.plant.power_supply.reset(initial_current_A=self.current_command_A)
 
+        self.alignment_log = []
         self._time_log: list[float] = []
         self._true_z_log: list[float] = []
         self._measured_z_log: list[float] = []
@@ -227,6 +244,24 @@ class ZHoverSimulation:
     def _record_control_sample(self) -> None:
         state = self.plant.true_state()
         sample = self.plant.power_supply.last_sample
+        from endoscopy_capsule_control.magnetic import magnetic_wrench
+        geometry = self.plant.actual_geometry()
+        _, _, field = magnetic_wrench(
+            state.position_world, state.magnetic_moment_world,
+            [geometry.em1.position_world, geometry.em2.position_world],
+            [geometry.em1.axis_world, geometry.em2.axis_world],
+            sample.actual_A, self.config.electromagnet.magnetic_gain,
+        )
+        moment = state.magnetic_moment_world
+        def angle(a, b):
+            norm = np.linalg.norm(a) * np.linalg.norm(b)
+            return float(np.rad2deg(np.arccos(np.clip(a @ b / norm, -1, 1)))) if norm > 1e-16 else float('nan')
+        self.alignment_log.append([
+            self.plant.time_s, *state.position_lcs,
+            angle(moment, field),
+            angle(moment, geometry.lcs_pose.rotation[:, 2]),
+            *sample.actual_A,
+        ])
 
         self._time_log.append(self.plant.time_s)
         self._true_z_log.append(float(state.position_lcs[2]))

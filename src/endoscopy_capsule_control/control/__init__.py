@@ -33,3 +33,33 @@ __all__ = [
     "ZHoverControlOutput",
     "ZHoverController",
 ]
+
+from .actuation_jacobian import (
+    ActuationJacobianResult,
+    compute_robot_current_force_jacobian,
+)
+
+__all__ += [
+    "ActuationJacobianResult",
+    "compute_robot_current_force_jacobian",
+]
+
+from .robot_current_allocator import (
+    RobotCurrentAllocationResult,
+    RobotCurrentAllocator,
+)
+from .xyz_pid_ff import (
+    XYZPIDFFCandidate,
+    XYZPIDFFOutput,
+    XYZPIDFFController,
+    design_xyz_pid_gains,
+)
+
+__all__ += [
+    "RobotCurrentAllocationResult",
+    "RobotCurrentAllocator",
+    "XYZPIDFFCandidate",
+    "XYZPIDFFOutput",
+    "XYZPIDFFController",
+    "design_xyz_pid_gains",
+]

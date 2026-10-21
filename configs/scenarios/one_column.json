@@ -1,0 +1,27 @@
+{
+  "mode": "path",
+  "x0_mm": 0,
+  "y0_mm": 0,
+  "z0_mm": 0,
+  "noise": ["all"],
+  "seed": 42,
+  "current_tau_ms": 0,
+  "localization_delay_ms": 0,
+  "camera": "tank",
+  "plot": true,
+  "csv": "results/astar/trajectory.csv",
+  "path": {
+    "goal_xy_mm": [50, 0],
+    "obstacles_x_y_radius_mm": [[25, 0, 5]],
+    "center_bounds_mm": [-60, 80, -60, 60],
+    "grid_mm": 2,
+    "margin_mm": 2,
+    "speed_mm_s": 3,
+    "acceleration_mm_s2": 2,
+    "warmup_s": 2,
+    "hold_s": 5,
+    "goal_tolerance_mm": 2,
+    "goal_speed_mm_s": 0.5,
+    "goal_hold_s": 1
+  }
+}
