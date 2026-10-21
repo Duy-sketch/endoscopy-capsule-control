@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mujoco model="aubo_i10_DEMA_MCE_FLUID_v1">
+
+  <compiler angle="radian" meshdir="assets" autolimits="true"/>
+  <option timestep="0.001"
+          gravity="0 0 -9.81"
+          integrator="implicitfast"/>
+
+  <visual>
+    <quality shadowsize="4096"/>
+    <headlight ambient="0.35 0.35 0.35"
+               diffuse="0.65 0.65 0.65"
+               specular="0.20 0.20 0.20"/>
+  </visual>
+
+  <default>
+    <joint type="hinge"
+           axis="0 0 1"
+           limited="true"
+           range="-3.04 3.04"
+           damping="1.0"
+           armature="0.02"/>
+    <geom type="mesh"
+          contype="0"
+          conaffinity="0"
+          group="1"/>
+  </default>
+
+  <asset>
+    <texture name="skybox"
+             type="skybox"
+             builtin="gradient"
+             rgb1="0.55 0.70 0.90"
+             rgb2="0.08 0.10 0.14"
+             width="512"
+             height="3072"/>
+
+    <texture name="ground_tex"
+             type="2d"
+             builtin="checker"
+             mark="edge"
+             rgb1="0.32 0.36 0.40"
+             rgb2="0.18 0.21 0.24"
+             markrgb="0.80 0.80 0.80"
+             width="512"
+             height="512"/>
+
+    <material name="ground_mat"
+              texture="ground_tex"
+              texuniform="true"
+              texrepeat="6 6"
+              reflectance="0.25"
+              shininess="0.35"
+              specular="0.45"/>
+
+    <mesh name="base_link_mesh"
+          file="aubo_i10/collision/link0.STL"/>
+    <mesh name="shoulder_Link_mesh"
+          file="aubo_i10/collision/link1.STL"/>
+    <mesh name="upperArm_Link_mesh"
+          file="aubo_i10/collision/link2.STL"/>
+    <mesh name="foreArm_Link_mesh"
+          file="aubo_i10/collision/link3.STL"/>
+    <mesh name="wrist1_Link_mesh"
+          file="aubo_i10/collision/link4.STL"/>
+    <mesh name="wrist2_Link_mesh"
+          file="aubo_i10/collision/link5.STL"/>
+    <mesh name="wrist3_Link_mesh"
+          file="aubo_i10/collision/link6.STL"/>
+
+    <material name="base_link_mat" rgba="0.75 0.75 0.78 1"/>
+    <material name="shoulder_Link_mat" rgba="0.90 0.92 0.93 1"/>
+    <material name="upperArm_Link_mat" rgba="0.90 0.92 0.93 1"/>
+    <material name="foreArm_Link_mat" rgba="0.78 0.78 0.80 1"/>
+    <material name="wrist1_Link_mat" rgba="0.78 0.78 0.80 1"/>
+    <material name="wrist2_Link_mat" rgba="0.78 0.78 0.80 1"/>
+    <material name="wrist3_Link_mat" rgba="0.78 0.78 0.80 1"/>
+
+    <material name="dema_mount_mat" rgba="0.22 0.22 0.24 1"/>
+    <material name="dema_core_mat" rgba="0.10 0.12 0.14 1"/>
+    <material name="dema_copper_mat" rgba="0.72 0.31 0.10 1"/>
+    <material name="dema_frame_mat" rgba="0.62 0.64 0.68 1"/>
+
+    <material name="mce_shell_mat"
+              rgba="0.18 0.55 0.92 0.72"
+              specular="0.35"
+              shininess="0.25"/>
+
+    <material name="mce_magnet_marker_mat"
+              rgba="0.12 0.12 0.14 1"/>
+
+    <material name="nonmag_bead_mat"
+              rgba="0.85 0.82 0.20 1"
+              specular="0.25"
+              shininess="0.20"/>
+
+    <material name="fluid_visual_mat"
+              rgba="0.12 0.42 0.85 0.08"
+              specular="0.15"
+              shininess="0.10"/>
+  </asset>
+
+  <!-- Existing model parameters retained. -->
+  <custom>
+    <numeric name="dema_phi_deg" data="30"/>
+    <numeric name="dema_phi_rad" data="0.523598775598299"/>
+
+    <numeric name="em_turns" data="736"/>
+    <numeric name="em_wire_diameter_m" data="0.0015"/>
+    <numeric name="em_max_current_A" data="20"/>
+
+    <numeric name="em_core_radius_m" data="0.011"/>
+    <numeric name="em_core_length_m" data="0.125"/>
+    <numeric name="em_core_mass_kg" data="0.4"/>
+
+    <numeric name="em_frame_gap_m" data="0.002"/>
+    <numeric name="em_winding_L0_m" data="0.130"/>
+
+    <numeric name="em_W1_m" data="0.0075"/>
+    <numeric name="em_W2_m" data="0.0060"/>
+    <numeric name="em_W3_m" data="0.0090"/>
+
+    <numeric name="em_H1_m" data="0.027990381056767"/>
+    <numeric name="em_H2_m" data="0.022392304845413"/>
+    <numeric name="em_H3_m" data="0.033588457268120"/>
+
+    <numeric name="em1_current_baseline_A" data="10"/>
+    <numeric name="em2_current_baseline_A" data="10"/>
+
+    <numeric name="paper_mce_length_m" data="0.030"/>
+    <numeric name="paper_mce_diameter_m" data="0.0114"/>
+    <numeric name="paper_mce_mass_kg" data="0.0076"/>
+    <numeric name="simulation_mce_mass_kg" data="0.0070"/>
+
+    <numeric name="test_capsule_magnetic_moment_Am2" data="0.05"/>
+    <numeric name="test_em_effective_dipole_gain_Am2_per_A" data="1.0"/>
+
+    <numeric name="paper_fluid_kinematic_viscosity_m2_per_s"
+             data="0.0001"/>
+  </custom>
+
+  <worldbody>
+
+    <!-- Ground: 810 mm below robot-base mounting plane. -->
+    <geom name="ground"
+          type="plane"
+          pos="0 0 -0.81"
+          size="0 0 0.05"
+          material="ground_mat"
+          contype="4"
+          conaffinity="3"/>
+
+    <!-- LAB BENCH REVISION 2026-10-18: PHOTO-ESTIMATED, NOT MEASURED.
+         1100 x 800 mm tabletop, 800 mm floor-to-top, 25 mm wood.
+         Base mounting plane Z=0; tabletop Z=-.010; floor Z=-.810.
+         Wheels are fixed geometry: this bench does not roll in simulation.
+         Front access at Y minimum; split rear panels at Y maximum.
+         Structural environment collision bits: contype=4, conaffinity=3.
+         Small surface details are visual only. No external textures needed.
+    -->
+    <geom name="lab_table_top" type="box" pos="0.25 -0.1 -0.0225" size="0.55 0.4 0.0125" rgba=".76 .61 .40 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_wood_grain_0" type="box" pos="0.25 -0.485 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_1" type="box" pos="0.25 -0.45199999999999996 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_2" type="box" pos="0.25 -0.419 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_3" type="box" pos="0.25 -0.386 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_4" type="box" pos="0.25 -0.353 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_5" type="box" pos="0.25 -0.31999999999999995 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_6" type="box" pos="0.25 -0.287 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_7" type="box" pos="0.25 -0.254 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_8" type="box" pos="0.25 -0.22099999999999997 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_9" type="box" pos="0.25 -0.18799999999999994 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_10" type="box" pos="0.25 -0.15499999999999997 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_11" type="box" pos="0.25 -0.122 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_12" type="box" pos="0.25 -0.08899999999999997 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_13" type="box" pos="0.25 -0.05599999999999994 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_14" type="box" pos="0.25 -0.022999999999999965 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_15" type="box" pos="0.25 0.010000000000000009 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_16" type="box" pos="0.25 0.04300000000000004 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_17" type="box" pos="0.25 0.07600000000000007 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_18" type="box" pos="0.25 0.1090000000000001 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_19" type="box" pos="0.25 0.14200000000000002 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_20" type="box" pos="0.25 0.17500000000000004 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_21" type="box" pos="0.25 0.20800000000000007 -0.00995" size="0.548 0.0012 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_22" type="box" pos="0.25 0.241 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_wood_grain_23" type="box" pos="0.25 0.274 -0.00995" size="0.548 0.0004 4e-05" rgba=".62 .48 .30 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_mount_plate" type="box" pos="0 0 -0.005" size="0.16 0.16 0.005" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_mount_bolt_0" type="cylinder" pos="-0.14 -0.14 0.001" size="0.004 0.001" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_mount_bolt_1" type="cylinder" pos="-0.14 0.14 0.001" size="0.004 0.001" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_mount_bolt_2" type="cylinder" pos="0.14 -0.14 0.001" size="0.004 0.001" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_mount_bolt_3" type="cylinder" pos="0.14 0.14 0.001" size="0.004 0.001" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_upper_front" type="box" pos="0.25 -0.46 -0.055" size="0.51 0.02 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_upper_front_groove" type="box" pos="0.25 -0.4801 -0.055" size="0.49 0.0001 0.003" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_upper_rear" type="box" pos="0.25 0.26 -0.055" size="0.51 0.02 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_upper_rear_groove" type="box" pos="0.25 0.2801 -0.055" size="0.49 0.0001 0.003" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_upper_left" type="box" pos="-0.26 -0.1 -0.055" size="0.02 0.34 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_upper_right" type="box" pos="0.76 -0.1 -0.055" size="0.02 0.34 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_lower_front" type="box" pos="0.25 -0.46 -0.7" size="0.51 0.02 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_lower_front_groove" type="box" pos="0.25 -0.4801 -0.7" size="0.49 0.0001 0.003" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_lower_rear" type="box" pos="0.25 0.26 -0.7" size="0.51 0.02 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_lower_rear_groove" type="box" pos="0.25 0.2801 -0.7" size="0.49 0.0001 0.003" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_lower_left" type="box" pos="-0.26 -0.1 -0.7" size="0.02 0.34 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_lower_right" type="box" pos="0.76 -0.1 -0.7" size="0.02 0.34 0.02" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_leg_0" type="box" pos="-0.26 -0.46 -0.4075" size="0.02 0.02 0.3325" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_leg_groove_0" type="box" pos="-0.26 -0.4801 -0.4075" size="0.003 0.0001 0.315" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_caster_mount_0" type="box" pos="-0.26 -0.46 -0.746" size="0.025 0.025 0.006" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_caster_wheel_0" type="cylinder" pos="-0.26 -0.46 -0.78" size="0.03 0.012" rgba=".07 .08 .09 1" contype="4" conaffinity="3" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_caster_hub_0" type="cylinder" pos="-0.26 -0.47250000000000003 -0.78" size="0.009 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_leg_1" type="box" pos="-0.26 0.26 -0.4075" size="0.02 0.02 0.3325" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_leg_groove_1" type="box" pos="-0.26 0.2801 -0.4075" size="0.003 0.0001 0.315" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_caster_mount_1" type="box" pos="-0.26 0.26 -0.746" size="0.025 0.025 0.006" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_caster_wheel_1" type="cylinder" pos="-0.26 0.26 -0.78" size="0.03 0.012" rgba=".07 .08 .09 1" contype="4" conaffinity="3" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_caster_hub_1" type="cylinder" pos="-0.26 0.2475 -0.78" size="0.009 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_leg_2" type="box" pos="0.76 -0.46 -0.4075" size="0.02 0.02 0.3325" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_leg_groove_2" type="box" pos="0.76 -0.4801 -0.4075" size="0.003 0.0001 0.315" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_caster_mount_2" type="box" pos="0.76 -0.46 -0.746" size="0.025 0.025 0.006" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_caster_wheel_2" type="cylinder" pos="0.76 -0.46 -0.78" size="0.03 0.012" rgba=".07 .08 .09 1" contype="4" conaffinity="3" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_caster_hub_2" type="cylinder" pos="0.76 -0.47250000000000003 -0.78" size="0.009 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_leg_3" type="box" pos="0.76 0.26 -0.4075" size="0.02 0.02 0.3325" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_leg_groove_3" type="box" pos="0.76 0.2801 -0.4075" size="0.003 0.0001 0.315" rgba=".12 .14 .16 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_caster_mount_3" type="box" pos="0.76 0.26 -0.746" size="0.025 0.025 0.006" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_caster_wheel_3" type="cylinder" pos="0.76 0.26 -0.78" size="0.03 0.012" rgba=".07 .08 .09 1" contype="4" conaffinity="3" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_caster_hub_3" type="cylinder" pos="0.76 0.2475 -0.78" size="0.009 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_side_panel_left" type="box" pos="-0.253 -0.1 -0.38" size="0.003 0.335 0.285" rgba=".53 .56 .58 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_side_panel_right" type="box" pos="0.753 -0.1 -0.38" size="0.003 0.335 0.285" rgba=".53 .56 .58 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_rear_center_post" type="box" pos="0.25 0.26 -0.38" size="0.02 0.02 0.305" rgba=".69 .72 .74 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_rear_panel_left" type="box" pos="-0.005 0.253 -0.38" size="0.231 0.003 0.285" rgba=".53 .56 .58 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_rear_screw_left_0" type="cylinder" pos="-0.215 0.257 -0.12" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_rear_screw_left_1" type="cylinder" pos="0.205 0.257 -0.12" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_rear_screw_left_2" type="cylinder" pos="-0.215 0.257 -0.64" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_rear_screw_left_3" type="cylinder" pos="0.205 0.257 -0.64" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_rear_panel_right" type="box" pos="0.505 0.253 -0.38" size="0.231 0.003 0.285" rgba=".53 .56 .58 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_rear_screw_right_0" type="cylinder" pos="0.29500000000000004 0.257 -0.12" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_rear_screw_right_1" type="cylinder" pos="0.715 0.257 -0.12" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_rear_screw_right_2" type="cylinder" pos="0.29500000000000004 0.257 -0.64" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_rear_screw_right_3" type="cylinder" pos="0.715 0.257 -0.64" size="0.003 0.001" rgba=".69 .72 .74 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_bottom_shelf" type="box" pos="0.25 -0.1 -0.677" size="0.485 0.335 0.003" rgba=".37 .26 .20 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_controller_enclosure" type="box" pos="0.22 -0.11 -0.56" size="0.23 0.2 0.11" rgba=".055 .065 .075 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_controller_front" type="box" pos="0.22 -0.313 -0.56" size="0.22 0.003 0.095" rgba=".10 .11 .12 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_socket_0" type="cylinder" pos="0.08 -0.318 -0.55" size="0.009 0.002" rgba=".72 .70 .60 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_controller_socket_1" type="cylinder" pos="0.136 -0.318 -0.55" size="0.009 0.002" rgba=".72 .70 .60 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_controller_socket_2" type="cylinder" pos="0.192 -0.318 -0.55" size="0.009 0.002" rgba=".72 .70 .60 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_controller_socket_3" type="cylinder" pos="0.248 -0.318 -0.55" size="0.009 0.002" rgba=".72 .70 .60 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_controller_socket_4" type="cylinder" pos="0.304 -0.318 -0.55" size="0.009 0.002" rgba=".72 .70 .60 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_controller_socket_5" type="cylinder" pos="0.36000000000000004 -0.318 -0.55" size="0.009 0.002" rgba=".72 .70 .60 1" contype="0" conaffinity="0" quat=".7071067812 .7071067812 0 0"/>
+    <geom name="lab_table_controller_vent_0" type="box" pos="0.065 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_1" type="box" pos="0.098 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_2" type="box" pos="0.131 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_3" type="box" pos="0.164 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_4" type="box" pos="0.197 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_5" type="box" pos="0.23 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_6" type="box" pos="0.263 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_7" type="box" pos="0.29600000000000004 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_8" type="box" pos="0.329 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_controller_vent_9" type="box" pos="0.36200000000000004 -0.312 -0.493" size="0.012 0.004 0.0015" rgba=".24 .25 .26 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_pendant_case" type="box" pos="0.31 -0.35 0.005" size="0.14 0.09 0.015" rgba=".92 .49 .035 1" contype="4" conaffinity="3"/>
+    <geom name="lab_table_pendant_screen" type="box" pos="0.3 -0.35 0.0202" size="0.112 0.068 0.0002" rgba=".055 .09 .12 1" contype="0" conaffinity="0"/>
+    <geom name="lab_table_pendant_estop" type="cylinder" pos="0.425 -0.295 0.026" size="0.012 0.006" rgba=".80 .035 .025 1" contype="4" conaffinity="3"/>
+    <camera name="lab_bench" pos="1.8 -2.3 0.9" xyaxes="0.82 0.57 0 -0.27 0.39 0.88"/>
+
+    <!-- Existing assumed tank and elevated stand retained -->
+    <geom name="tank_bottom"
+          type="box"
+          pos="0.65 0 0.6975"
+          size="0.155 0.155 0.0025"
+          rgba="0.45 0.65 0.72 0.45"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_wall_xmin"
+          type="box"
+          pos="0.4975 0 0.80"
+          size="0.0025 0.155 0.10"
+          rgba="0.60 0.80 0.90 0.18"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_wall_xmax"
+          type="box"
+          pos="0.8025 0 0.80"
+          size="0.0025 0.155 0.10"
+          rgba="0.60 0.80 0.90 0.18"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_wall_ymin"
+          type="box"
+          pos="0.65 -0.1525 0.80"
+          size="0.15 0.0025 0.10"
+          rgba="0.60 0.80 0.90 0.18"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_wall_ymax"
+          type="box"
+          pos="0.65 0.1525 0.80"
+          size="0.15 0.0025 0.10"
+          rgba="0.60 0.80 0.90 0.18"
+          contype="4" conaffinity="3"/>
+
+    <geom name="oil_volume"
+          type="box"
+          pos="0.65 0 0.79"
+          size="0.15 0.15 0.09"
+          rgba="0.15 0.55 0.85 0.06"
+          contype="0" conaffinity="0"/>
+
+    <geom name="tank_stand_top"
+          type="box"
+          pos="0.65 0 0.6825"
+          size="0.18 0.18 0.0125"
+          rgba="0.22 0.24 0.27 1"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_stand_leg_0"
+          type="box"
+          pos="0.5 -0.15 0.335"
+          size="0.015 0.015 0.335"
+          rgba="0.22 0.24 0.27 1"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_stand_leg_1"
+          type="box"
+          pos="0.5 0.15 0.335"
+          size="0.015 0.015 0.335"
+          rgba="0.22 0.24 0.27 1"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_stand_leg_2"
+          type="box"
+          pos="0.8 -0.15 0.335"
+          size="0.015 0.015 0.335"
+          rgba="0.22 0.24 0.27 1"
+          contype="4" conaffinity="3"/>
+
+    <geom name="tank_stand_leg_3"
+          type="box"
+          pos="0.8 0.15 0.335"
+          size="0.015 0.015 0.335"
+          rgba="0.22 0.24 0.27 1"
+          contype="4" conaffinity="3"/>
+
+    <light name="sun"
+           directional="true"
+           pos="1.5 -1.5 3.5"
+           dir="-0.35 0.30 -1"
+           diffuse="0.85 0.85 0.85"
+           specular="0.30 0.30 0.30"
+           castshadow="true"/>
+
+    <light name="fill_light"
+           directional="false"
+           pos="-1.5 1.0 2.2"
+           diffuse="0.35 0.35 0.38"
+           specular="0.08 0.08 0.08"
+           castshadow="false"/>
+
+    <camera name="overview"
+            pos="2.2 -2.2 1.55"
+            xyaxes="0.707107 0.707107 0 -0.408248 0.408248 0.816497"/>
+
+    <!-- AUBO i10 -->
+    <body name="base_link" pos="0 0 0" quat="1 0 0 0">
+      <inertial pos="-2.7535e-06 0.00054789 0.02299"
+                mass="1.2345"
+                fullinertia="0.0029215 0.0028546 0.0051176 2.2046e-07 -3.4773e-08 -7.6362e-06"/>
+
+      <geom name="base_link_visual"
+            mesh="base_link_mesh"
+            material="base_link_mat"
+            contype="2" conaffinity="4"/>
+
+      <body name="shoulder_Link"
+            gravcomp="1"
+            pos="0 0 0.1632"
+            quat="-3.67320510335e-06 0 -4.3569e-17 0.999999999993">
+
+        <inertial pos="0.00029287 0.14173 0.54281"
+                  mass="10.994"
+                  fullinertia="2.2088 2.1473 0.07998 -0.00043922 -0.0025417 -0.049088"/>
+
+        <joint name="shoulder_joint"
+               pos="0 0 0"
+               axis="0 0 1"
+               range="-3.04 3.04"/>
+
+        <geom name="shoulder_Link_visual"
+              mesh="shoulder_Link_mesh"
+              material="shoulder_Link_mat"
+              contype="2" conaffinity="4"/>
+
+        <body name="upperArm_Link"
+              gravcomp="1"
+              pos="0 0.2013 0"
+              quat="0.499998163397 -0.499999999997 -0.499999999997 -0.500001836603">
+
+          <inertial pos="0.31908 -3.7071e-06 -0.0042956"
+                    mass="5.3139"
+                    fullinertia="0.0095171 0.11411 0.11411 7.2849e-06 -6.7014e-06 -1.1529e-06"/>
+
+          <joint name="upperArm_joint"
+                 pos="0 0 0"
+                 axis="0 0 1"
+                 range="-3.04 3.04"/>
+
+          <geom name="upperArm_Link_visual"
+                mesh="upperArm_Link_mesh"
+                material="upperArm_Link_mat"
+                contype="2" conaffinity="4"/>
+
+          <body name="foreArm_Link"
+                gravcomp="1"
+                pos="0.647 0 0"
+                quat="-3.67320510335e-06 0.999999999993 -4.21639e-17 2.29772e-17">
+
+            <inertial pos="0.24431 6.6794e-06 0.12549"
+                      mass="3.1022"
+                      fullinertia="0.0027288 0.097825 0.097866 -6.2713e-06 -0.0018082 3.5731e-07"/>
+
+            <joint name="foreArm_joint"
+                   pos="0 0 0"
+                   axis="0 0 1"
+                   range="-3.04 3.04"/>
+
+            <geom name="foreArm_Link_visual"
+                  mesh="foreArm_Link_mesh"
+                  material="foreArm_Link_mat"
+                  contype="2" conaffinity="4"/>
+
+            <body name="wrist1_Link"
+                  gravcomp="1"
+                  pos="0.6005 0 0"
+                  quat="-2.59734346646e-06 -0.707105482506 -0.707108079855 -2.59735300806e-06">
+
+              <inertial pos="5.2305e-07 0.00026581 -0.0027894"
+                        mass="0.57981"
+                        fullinertia="0.00088336 0.00046118 0.00085336 -6.425e-09 5.1594e-09 -1.0734e-06"/>
+
+              <joint name="wrist1_joint"
+                     pos="0 0 0"
+                     axis="0 0 1"
+                     range="-3.04 3.04"/>
+
+              <geom name="wrist1_Link_visual"
+                    mesh="wrist1_Link_mesh"
+                    material="wrist1_Link_mat"
+                    contype="2" conaffinity="4"/>
+
+              <body name="wrist2_Link"
+                    gravcomp="1"
+                    pos="0 0.1025 0"
+                    quat="0.707105482511 -0.707108079859 1.17531e-17 -5.12221e-16">
+
+                <inertial pos="-5.2305e-07 -0.00026581 -0.0027894"
+                          mass="0.57981"
+                          fullinertia="0.00088336 0.00046118 0.00085336 -6.4251e-09 -5.1594e-09 1.0734e-06"/>
+
+                <joint name="wrist2_joint"
+                       pos="0 0 0"
+                       axis="0 0 1"
+                       range="-3.04 3.04"/>
+
+                <geom name="wrist2_Link_visual"
+                      mesh="wrist2_Link_mesh"
+                      material="wrist2_Link_mat"
+                      contype="2" conaffinity="4"/>
+
+                <body name="wrist3_Link"
+                      gravcomp="1"
+                      pos="0 -0.094 0"
+                      quat="0.707105482511 0.707108079859 2.37882e-16 2.37881e-16">
+
+                  <inertial pos="-2.2127e-09 0.00023722 -0.018629"
+                            mass="0.13669"
+                            fullinertia="6.0946e-05 5.9501e-05 9.6981e-05 9.3663e-12 -1.3841e-12 1.9944e-07"/>
+
+                  <joint name="wrist3_joint"
+                         pos="0 0 0"
+                         axis="0 0 1"
+                         range="-3.04 3.04"/>
+
+                  <geom name="wrist3_Link_visual"
+                        mesh="wrist3_Link_mesh"
+                        material="wrist3_Link_mat"
+                        contype="2" conaffinity="4"/>
+
+                  <site name="wrist3_frame_site"
+                        pos="0 0 0"
+                        size="0.006"
+                        rgba="1 0.2 0.2 1"/>
+
+                  <site name="aubo_tool0_provisional"
+                        pos="0 0 0"
+                        size="0.004"
+                        rgba="0.2 1 0.2 1"/>
+
+                  <!-- Existing DEMA attachment retained -->
+                  <body name="DEMA" pos="0 0 0" euler="0 0 0">
+
+                    <site name="DEMA_mount_origin"
+                          pos="0 0 0"
+                          size="0.005"
+                          rgba="0.1 1 0.1 1"/>
+
+                    <geom name="DEMA_mount_plate"
+                          type="box"
+                          pos="0 0 0.006"
+                          size="0.085 0.045 0.006"
+                          material="dema_mount_mat"
+                          mass="0"
+                          contype="2" conaffinity="4"/>
+
+                    <site name="LCS_origin"
+                          pos="0 0 0.125"
+                          size="0.005"
+                          rgba="0.1 1 0.1 1"/>
+
+                    <site name="LCS_z"
+                          pos="0 0 0.175"
+                          size="0.003"
+                          rgba="0.1 0.8 1 1"/>
+
+                    <site name="ROI_30mm"
+                          pos="0 0 0.155"
+                          size="0.004"
+                          rgba="1 0.2 1 1"/>
+
+                    <body name="EM1"
+                          pos="0.0475 0 0.012"
+                          euler="0 -0.261799387799149 0">
+
+                      <geom name="EM1_core"
+                            type="cylinder"
+                            pos="0 0 0.0625"
+                            size="0.011 0.0625"
+                            material="dema_core_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM1_frame"
+                            type="cylinder"
+                            pos="0 0 0.041992"
+                            size="0.013 0.041992"
+                            material="dema_frame_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM1_coil_step3"
+                            type="cylinder"
+                            pos="0 0 0.016794"
+                            size="0.0355 0.016794228634060"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM1_coil_step2"
+                            type="cylinder"
+                            pos="0 0 0.044784"
+                            size="0.0265 0.011196152422706"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM1_coil_step1"
+                            type="cylinder"
+                            pos="0 0 0.064377"
+                            size="0.0205 0.013995190528384"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <site name="EM1_root"
+                            pos="0 0 0"
+                            size="0.003"
+                            rgba="1 0.7 0.1 1"/>
+
+                      <site name="EM1_center"
+                            pos="0 0 0.0625"
+                            size="0.0035"
+                            rgba="1 0.2 0.2 1"/>
+
+                      <site name="EM1_tip"
+                            pos="0 0 0.125"
+                            size="0.0035"
+                            rgba="1 0.5 0.1 1"/>
+
+                      <site name="EM1_axis"
+                            pos="0 0 0.100"
+                            size="0.0025"
+                            rgba="1 0 0 1"/>
+                    </body>
+
+                    <body name="EM2"
+                          pos="-0.0475 0 0.012"
+                          euler="0 0.261799387799149 0">
+
+                      <geom name="EM2_core"
+                            type="cylinder"
+                            pos="0 0 0.0625"
+                            size="0.011 0.0625"
+                            material="dema_core_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM2_frame"
+                            type="cylinder"
+                            pos="0 0 0.041992"
+                            size="0.013 0.041992"
+                            material="dema_frame_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM2_coil_step3"
+                            type="cylinder"
+                            pos="0 0 0.016794"
+                            size="0.0355 0.016794228634060"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM2_coil_step2"
+                            type="cylinder"
+                            pos="0 0 0.044784"
+                            size="0.0265 0.011196152422706"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <geom name="EM2_coil_step1"
+                            type="cylinder"
+                            pos="0 0 0.064377"
+                            size="0.0205 0.013995190528384"
+                            material="dema_copper_mat"
+                            mass="0"
+                            contype="2" conaffinity="4"/>
+
+                      <site name="EM2_root"
+                            pos="0 0 0"
+                            size="0.003"
+                            rgba="1 0.7 0.1 1"/>
+
+                      <site name="EM2_center"
+                            pos="0 0 0.0625"
+                            size="0.0035"
+                            rgba="1 0.2 0.2 1"/>
+
+                      <site name="EM2_tip"
+                            pos="0 0 0.125"
+                            size="0.0035"
+                            rgba="1 0.5 0.1 1"/>
+
+                      <site name="EM2_axis"
+                            pos="0 0 0.100"
+                            size="0.0025"
+                            rgba="0 0.4 1 1"/>
+                    </body>
+
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <!-- Legacy visual marker; fluid physics is computed in Python -->
+    <body name="FLUID_VISUAL" mocap="true" pos="0 0 -10">
+      <geom name="FLUID_VISUAL_BOX"
+            type="box"
+            size="0.12 0.12 0.10"
+            material="fluid_visual_mat"
+            mass="0"
+            contype="0"
+            conaffinity="0"
+            group="4"/>
+    </body>
+
+    <!-- Magnetic capsule -->
+    <body name="MCE"
+          pos="0.30 0 0.50"
+          quat="0.7071067812 0 0.7071067812 0">
+
+      <freejoint name="MCE_free"/>
+
+      <geom name="MCE_shell"
+            type="capsule"
+            size="0.0057000 0.0093000"
+            mass="0.007"
+            material="mce_shell_mat"
+            friction="0.4 0.01 0.001"
+            contype="1"
+            conaffinity="7"/>
+
+      <site name="MCE_magnetic_center"
+            pos="0 0 0"
+            size="0.0028"
+            rgba="0.1 0.1 0.1 1"/>
+    </body>
+
+    <!-- Non-magnetic control bead -->
+    <body name="NONMAG_BEAD" pos="0.30 0.04 0.50">
+      <freejoint name="NONMAG_BEAD_free"/>
+
+      <geom name="NONMAG_BEAD_geom"
+            type="sphere"
+            size="0.0057"
+            mass="0.007"
+            material="nonmag_bead_mat"
+            friction="0.4 0.01 0.001"
+            contype="1"
+            conaffinity="1"/>
+
+      <site name="NONMAG_BEAD_center"
+            pos="0 0 0"
+            size="0.0025"
+            rgba="1 0.2 0.2 1"/>
+    </body>
+
+  </worldbody>
+
+  <!-- Existing simulation joint servos retained -->
+  <actuator>
+    <position name="J1_position"
+              joint="shoulder_joint"
+              kp="80" kv="18"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J2_position"
+              joint="upperArm_joint"
+              kp="80" kv="18"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J3_position"
+              joint="foreArm_joint"
+              kp="60" kv="14"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J4_position"
+              joint="wrist1_joint"
+              kp="25" kv="6"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J5_position"
+              joint="wrist2_joint"
+              kp="20" kv="5"
+              ctrlrange="-3.04 3.04"/>
+
+    <position name="J6_position"
+              joint="wrist3_joint"
+              kp="15" kv="4"
+              ctrlrange="-3.04 3.04"/>
+  </actuator>
+
+</mujoco>

@@ -1,0 +1,44 @@
+{
+  "status": "STOP: diagnostic ROI exceeded",
+  "noise": [
+    "current",
+    "localization",
+    "robot"
+  ],
+  "seed": 42,
+  "angle_target_deg": 15.0,
+  "height_ref_world_m": 0.8249999999984661,
+  "current_tau_ms": 10.0,
+  "localization_delay_ms": 10.0,
+  "current_range_A": [
+    -20.0,
+    20.0
+  ],
+  "model_path": "F:\\OneDrive - Hanoi University of Science and Technology\\Documents\\RL in capsule\\endoscopy_capsule_control\\src\\endoscopy_capsule_control\\models\\aubo_i10.xml",
+  "control": "world XYZ PID+FF; slow force/field optimization + fast XZ current allocation",
+  "ramp_s": 20.0,
+  "angle_kp": 0.3,
+  "robot_range_mm": 40.0,
+  "robot_z_enabled": false,
+  "robot_speed_mm_s": 5.0,
+  "diagnostic_roi_mm": 40.0,
+  "warning": "Paper-inspired, not exact reproduction. ROI and actuator limits are simulation assumptions. No global stability guarantee.",
+  "final_angle_deg": 0.5625051777030519,
+  "final_height_error_mm": 1.3080260765022667,
+  "final_xy_mm": [
+    -0.5169665115865333,
+    -0.47424284183861964
+  ],
+  "infeasible_fraction": 0.0,
+  "max_out_of_plane_fraction": 0.002955146714496122,
+  "max_radial_lcs_mm": 40.00356426538675,
+  "min_submerged_fraction": 1.0,
+  "final_robot_displacement_mm": [
+    -40.55791006901366,
+    0.4616783498272535,
+    0.048408973501778974
+  ],
+  "max_abs_current_A": 12.84741672432232,
+  "max_world_xy_error_mm": 8.62996988058336,
+  "max_abs_height_error_mm": 5.205896055815562
+}

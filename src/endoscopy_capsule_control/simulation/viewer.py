@@ -118,3 +118,20 @@ def configure_dema_overview_camera(
         viewer.cam.elevation = float(
             elevation
         )
+
+def configure_follower_camera(viewer, system, camera, table_present):
+    """Camera presets shared by the single follower entry point."""
+    configure_dema_overview_camera(viewer, system,
+        distance=2.8 if table_present else .5, azimuth=90, elevation=-25)
+    if table_present:
+        with viewer.lock():
+            viewer.cam.lookat[:] = [.30, 0., .35]
+    if camera == 'tank':
+        with viewer.lock():
+            viewer.cam.lookat[:] = [.65, 0., .80]
+            viewer.cam.distance = .65
+            viewer.cam.azimuth = 120
+            viewer.cam.elevation = -25
+    elif camera == 'capsule':
+        configure_capsule_tracking_camera(viewer, system,
+            distance=.18, azimuth=90, elevation=-20)

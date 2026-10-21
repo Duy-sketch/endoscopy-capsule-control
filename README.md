@@ -1,169 +1,56 @@
-Project mô phỏng điều khiển viên nang nội soi từ tính bằng hệ DEMA (Dual-Electromagnet Actuation) gắn trên robot AUBO i10, sử dụng MuJoCo.
+# DEMA capsule simulation
 
-Hiện tại project tập trung vào plant và điều khiển Z-hovering. Các phần XY/XYZ sẽ được phát triển lại sau trên nền plant hiện tại.
+Project đầy đủ: follower và A* XY tránh cột trụ trong MuJoCo. Điểm chạy chính là `scripts/run_simulation.py`.
 
-1. Mục tiêu hiện tại
-- Mô phỏng capsule trong môi trường chất lỏng
-- Tính lực và mô-men từ do hai electromagnet tạo ra.
-- Điều khiển capsule giữ độ cao theo trục Z.
-- Mô phỏng các sai số thực tế:
-+ nhiễu dòng điện của bộ nguồn,
-+ nhiễu localization,
-+ sai số vị trí của AUBO i10.
+## Chạy nhanh
 
-Cho phép bật/tắt từng loại nhiễu để test controller.
-Luồng chính:
-Z target
+Từ thư mục gốc có `src`, `scripts`, `pyproject.toml`:
 
-   ↓
-Z controller
+```powershell
+python -m pip install -e .
+python scripts/run_simulation.py --scenario configs/scenarios/follower_circle.json
+```
 
-   ↓
-Current command
+Viewer mở mặc định. Đóng viewer sau khi kết quả đã lưu. Preset bật PNG; kết quả mặc định ở `results/follower_circle.csv`, `.json`, `.png`.
 
-   ↓
-Power supply model + current noise
+```powershell
+python scripts/run_simulation.py --scenario configs/scenarios/follower_circle.json --noise all --seed 42 --current-tau-ms 10 --localization-delay-ms 10 --csv results/follower_noise.csv
+```
 
-   ↓
-Magnetic force
+Tau/trễ 10 ms là giả định sensitivity test, không phải số đo nguồn thật. `--noise none` không tắt tau/trễ. Dùng `--headless` để tắt viewer. Lệnh cũ `python scripts/test_passive_follower.py ...` vẫn được hỗ trợ bằng wrapper, không chứa bản controller thứ hai.
 
-   ↓
-Capsule dynamics + fluid + gravity
+## Đọc code theo thứ tự
 
-   ↓
-True state
+1. `scripts/run_simulation.py`: điểm vào.
+2. `simulation/follower_options.py`: đọc tham số, preset, kiểm tra đầu vào.
+3. `simulation/path_simulation.py`: khởi tạo và vòng lặp chính.
+4. `planning/trajectory.py`: tham chiếu đường thẳng/vòng tròn.
+5. `control/common_current_z.py`: điều khiển dòng giữ Z.
+6. `plant/z_hover_plant.py`: thực thi dynamics và mô hình đo.
+7. `evaluation/results.py`: ghi CSV/JSON, vẽ đồ thị và in chỉ số.
 
-   ↓
-Localization + noise
+Từ mục 2 trở đi, đường dẫn nằm dưới `src/endoscopy_capsule_control/`.
 
-   ↓
-Measured state → controller
+Xem `docs/FILE_FLOW.md` để biết luồng và cần sửa file nào.
 
-2. Cài đặt
-Yêu cầu khuyến nghị: Python 3.13, MuJoCo, NumPy
-Tại thư mục project:
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -e .
+Đã ghép A* XY và cột trụ vào cùng luồng chạy; đã hỗ trợ tường chữ nhật. Xem `docs/PATH_PLANNING.md`. Plant, gains, axes, luật dòng, cubic trajectory line/circle và thứ tự lấy mẫu giữ nguyên. Robot dẫn hướng XY; capsule không có PID XY/góc. PID+FF dùng dòng giữ Z trong LCS DEMA. Chuyển động thật vẫn 3D. Simulink không nằm trong thay đổi này.
 
-Kiểm tra cài đặt:
+## Path planning XY
 
-python -m unittest discover -s tests -v
+```powershell
+python scripts/run_simulation.py --scenario configs/scenarios/one_column.json --noise none
+```
 
-Nếu hiện OK thì có thể chạy simulation.
+Bản đồ và vật cản chỉ khai báo một lần trong scenario. Viewer và PNG bật trong preset. Các lệnh circle/line cũ vẫn chạy như trước.
 
-3. Các lệnh test quan trọng
-- Test các model nhiễu
-python scripts/test_plant.py
-Script kiểm tra:
-+ current noise,
-+ RF localization noise,
-+ AUBO i10 pose uncertainty.
+## Nội dung gói ZIP
 
-- Test lực từ theo dòng điện
-python scripts/test_magnetic_z.py
+Gói chứa toàn bộ source, model/mesh AUBO i10, cấu hình, tests và tài liệu. Đã bỏ `scripts/legacy/`, cache và kết quả chạy cũ. Giải nén vào thư mục riêng, không chép đè lên project cũ.
 
-Dùng để kiểm tra dấu và độ đối xứng của lực từ.
+`scripts/test_passive_follower.py` là wrapper tương thích dùng chung code chính, cũng được sweep sử dụng. Các module controller/plant cũ còn được package/tests tham chiếu vẫn được giữ để tránh lỗi import. Không cần chạy installer hay apply-update.
 
-- Test Z plant open-loop
-Một vài case tham khảo:
+Đọc `docs/FILE_FLOW.md` để chọn đúng file cần sửa; `docs/PATH_PLANNING.md` hướng dẫn đổi đích, vật cản và tốc độ. `VALIDATION.md` ghi các kiểm tra đã thực hiện.
 
-python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -10 --i2 10
-python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
-python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -20 --i2 20
+## Tường phẳng
 
-Tại operating point hiện tại:
-
--10, +10 A: lực nâng chưa đủ,
-
--15, +15 A: gần điểm cân bằng,
-
--20, +20 A: lực nâng lớn hơn trọng lực biểu kiến.
-
-4. Chạy Z-hovering
-Không có nhiễu: python scripts/run_z_hover.py --noise none --time 10 --settling-time 5
-Có MuJoCo viewer: python scripts/run_z_hover.py --noise none --time 10 --settling-time 5 --viewer --camera overview
-
-Camera khác:
-
---camera capsule
-
-5. Bật / tắt nhiễu
-Thay option --noise.
-- Chỉ current noise:  python scripts/run_z_hover.py --noise current --seed 42 --viewer --camera overview
-- Chỉ localization noise: python scripts/run_z_hover.py --noise localization --seed 42 --viewer --camera overview
-- Chỉ sai số AUBO i10: python scripts/run_z_hover.py --noise robot --seed 42 --viewer --camera overview
-- Bật tất cả: python scripts/run_z_hover.py --noise all --seed 42 --viewer --camera overview
-
-Dùng cùng một --seed để có thể lặp lại cùng một experiment.
-
-6. Các sai số đang mô phỏng
-- Current noise, Model đang dùng bộ nguồn tương đương Kepco BOP 20-20.
-- Baseline hiện tại:
-+ RMS current noise ≈ 6 mA / channel, hai kênh electromagnet có nhiễu độc lập.
-+ Localization noise
-+ Baseline được xây dựng từ kết quả dynamic localization của bài báo DEMA.
-+ sigma ≈ 0.93 mm / axis
-+ 3D RMSE ≈ 1.61 mm
-+ AUBO i10 uncertainty
-Hiện mô phỏng dưới dạng pose bias cố định trong mỗi episode.
-repeatability bound ≈ 0.05 mm
-
-7. Thay đổi chất lỏng
-Các thông số fluid nằm trong: src/endoscopy_capsule_control/plant/fluid.py
-
-Khi đổi fluid cần chú ý hai thông số chính: density rho, viscosity.
-
-Density ảnh hưởng buoyancy, còn viscosity ảnh hưởng drag.
-
-Sau khi đổi fluid nên chạy lại: python scripts/test_z_plant_open_loop.py --noise none --time 0.05 --i1 -15 --i2 15
-
-Nếu capsule không còn cân bằng tại -15, +15 A thì phải cập nhật lại feedforward/equilibrium current trong config/controller.
-
-8. Thay đổi mức nhiễu
-Các tham số chính nằm trong:
-src/endoscopy_capsule_control/config.py
-
-Có thể chỉnh:current noise,localization sigma,AUBO repeatability, capsule mass/geometry, magnetic moment, controller gains, control timestep.
-
-Sau khi thay config nên chạy lại theo thứ tự:
-
-python -m unittest discover -s tests -v
-
-python scripts/test_plant.py
-
-python scripts/test_magnetic_z.py
-
-python scripts/run_z_hover.py --noise none --time 5 --settling-time 2
-
-Sau đó mới bật từng loại noise.
-
-9. Cấu trúc project
-
-scripts/
-
-    run_z_hover.py
-    
-    test_magnetic_z.py
-    
-    test_plant.py
-    
-    test_z_plant_open_loop.py
-
-src/endoscopy_capsule_control/
-
-    control/       # đây là bdk PID+FF
-    
-    magnetic/      # động lực học từ
-    
-    plant/         # toàn bộ plant từ sai số localization, nguồn, robpt
-    
-    simulation/    # MuJoCo, AUBO IK, viewer
-    
-    models/        # AUBO i10 XML + meshes
-    
-    config.py
-
-tests/
-    test_noise_models.py
+Dùng `configs/scenarios/map.json`. Xem `docs/FLAT_WALLS.md` để sửa cột, tường, điểm đầu và đích. Tường dùng box thật; ảnh xem trước ở `docs/flat_wall_map.png`.

@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="aubo_i10_DEMA_MCE_FLUID_v1">
+  <compiler angle="radian" meshdir="F:\OneDrive - Hanoi University of Science and Technology\Documents\RL in capsule\endoscopy_capsule_control\src\endoscopy_capsule_control\models\assets" autolimits="true" texturedir="F:\OneDrive - Hanoi University of Science and Technology\Documents\RL in capsule\endoscopy_capsule_control\src\endoscopy_capsule_control\models" />
+  <option timestep="0.001" gravity="0 0 -9.81" integrator="implicitfast" />
+
+  <visual>
+    <quality shadowsize="4096" />
+    <headlight ambient="0.35 0.35 0.35" diffuse="0.65 0.65 0.65" specular="0.20 0.20 0.20" />
+  </visual>
+  <default>
+    <joint type="hinge" axis="0 0 1" limited="true" range="-3.04 3.04" damping="1.0" armature="0.02" />
+    <geom type="mesh" contype="0" conaffinity="0" group="1" />
+  </default>
+  <asset>
+    
+    <texture name="skybox" type="skybox" builtin="gradient" rgb1="0.55 0.70 0.90" rgb2="0.08 0.10 0.14" width="512" height="3072" />
+
+    
+    <texture name="ground_tex" type="2d" builtin="checker" mark="edge" rgb1="0.32 0.36 0.40" rgb2="0.18 0.21 0.24" markrgb="0.80 0.80 0.80" width="512" height="512" />
+
+    
+    <material name="ground_mat" texture="ground_tex" texuniform="true" texrepeat="6 6" reflectance="0.25" shininess="0.35" specular="0.45" />
+
+    <mesh name="base_link_mesh" file="aubo_i10/collision/link0.STL" />
+    <material name="base_link_mat" rgba="0.75 0.75 0.78 1" />
+    <mesh name="shoulder_Link_mesh" file="aubo_i10/collision/link1.STL" />
+    <material name="shoulder_Link_mat" rgba="0.90 0.92 0.93 1" />
+    <mesh name="upperArm_Link_mesh" file="aubo_i10/collision/link2.STL" />
+    <material name="upperArm_Link_mat" rgba="0.90 0.92 0.93 1" />
+    <mesh name="foreArm_Link_mesh" file="aubo_i10/collision/link3.STL" />
+    <material name="foreArm_Link_mat" rgba="0.78 0.78 0.80 1" />
+    <mesh name="wrist1_Link_mesh" file="aubo_i10/collision/link4.STL" />
+    <material name="wrist1_Link_mat" rgba="0.78 0.78 0.80 1" />
+    <mesh name="wrist2_Link_mesh" file="aubo_i10/collision/link5.STL" />
+    <material name="wrist2_Link_mat" rgba="0.78 0.78 0.80 1" />
+    <mesh name="wrist3_Link_mesh" file="aubo_i10/collision/link6.STL" />
+    <material name="wrist3_Link_mat" rgba="0.78 0.78 0.80 1" />
+
+    
+    <material name="dema_mount_mat" rgba="0.22 0.22 0.24 1" />
+    <material name="dema_core_mat" rgba="0.10 0.12 0.14 1" />
+    <material name="dema_copper_mat" rgba="0.72 0.31 0.10 1" />
+    <material name="dema_frame_mat" rgba="0.62 0.64 0.68 1" />
+
+    
+    <material name="mce_shell_mat" rgba="0.18 0.55 0.92 0.72" specular="0.35" shininess="0.25" />
+
+    <material name="mce_magnet_marker_mat" rgba="0.12 0.12 0.14 1" />
+
+    <material name="nonmag_bead_mat" rgba="0.85 0.82 0.20 1" specular="0.25" shininess="0.20" />
+
+    
+    <material name="fluid_visual_mat" rgba="0.12 0.42 0.85 0.08" specular="0.15" shininess="0.10" />
+  </asset>
+
+  
+  <custom>
+    <numeric name="dema_phi_deg" data="30" />
+    <numeric name="dema_phi_rad" data="0.523598775598299" />
+
+    <numeric name="em_turns" data="736" />
+    <numeric name="em_wire_diameter_m" data="0.0015" />
+    <numeric name="em_max_current_A" data="20" />
+
+    <numeric name="em_core_radius_m" data="0.011" />
+    <numeric name="em_core_length_m" data="0.125" />
+    <numeric name="em_core_mass_kg" data="0.4" />
+
+    <numeric name="em_frame_gap_m" data="0.002" />
+    <numeric name="em_winding_L0_m" data="0.130" />
+
+    <numeric name="em_W1_m" data="0.0075" />
+    <numeric name="em_W2_m" data="0.0060" />
+    <numeric name="em_W3_m" data="0.0090" />
+
+    <numeric name="em_H1_m" data="0.027990381056767" />
+    <numeric name="em_H2_m" data="0.022392304845413" />
+    <numeric name="em_H3_m" data="0.033588457268120" />
+
+    
+    <numeric name="em1_current_baseline_A" data="10" />
+    <numeric name="em2_current_baseline_A" data="10" />
+
+
+    
+    <numeric name="paper_mce_length_m" data="0.030" />
+    <numeric name="paper_mce_diameter_m" data="0.0114" />
+    <numeric name="paper_mce_mass_kg" data="0.0076" />
+    <numeric name="simulation_mce_mass_kg" data="0.0070" />
+
+    
+    <numeric name="test_capsule_magnetic_moment_Am2" data="0.05" />
+    <numeric name="test_em_effective_dipole_gain_Am2_per_A" data="1.0" />
+
+
+    
+    <numeric name="paper_fluid_kinematic_viscosity_m2_per_s" data="0.0001" />
+  </custom>
+
+  <worldbody>
+    
+    <geom name="ground" type="plane" pos="0 0 -0.75" size="0 0 0.05" material="ground_mat" contype="4" conaffinity="3" />
+
+
+    
+    <geom name="lab_table_top" type="box" pos="0.30 0 -0.025" size="0.75 0.50 0.025" rgba="0.48 0.50 0.53 1" contype="4" conaffinity="3" friction="0.6 0.01 0.001" />
+    <geom name="lab_table_leg_0" type="box" pos="-0.38 -0.43 -0.40" size="0.035 0.035 0.35" rgba="0.18 0.20 0.23 1" contype="4" conaffinity="3" />
+    <geom name="lab_table_leg_1" type="box" pos="-0.38 0.43 -0.40" size="0.035 0.035 0.35" rgba="0.18 0.20 0.23 1" contype="4" conaffinity="3" />
+    <geom name="lab_table_leg_2" type="box" pos="0.98 -0.43 -0.40" size="0.035 0.035 0.35" rgba="0.18 0.20 0.23 1" contype="4" conaffinity="3" />
+    <geom name="lab_table_leg_3" type="box" pos="0.98 0.43 -0.40" size="0.035 0.035 0.35" rgba="0.18 0.20 0.23 1" contype="4" conaffinity="3" />
+
+
+    
+    <geom name="tank_bottom" type="box" pos=".65 0 .6975" size=".155 .155 .0025" rgba=".45 .65 .72 .45" contype="4" conaffinity="3" />
+    <geom name="tank_wall_xmin" type="box" pos=".4975 0 .80" size=".0025 .155 .10" rgba=".60 .80 .90 .18" contype="4" conaffinity="3" />
+    <geom name="tank_wall_xmax" type="box" pos=".8025 0 .80" size=".0025 .155 .10" rgba=".60 .80 .90 .18" contype="4" conaffinity="3" />
+    <geom name="tank_wall_ymin" type="box" pos=".65 -.1525 .80" size=".15 .0025 .10" rgba=".60 .80 .90 .18" contype="4" conaffinity="3" />
+    <geom name="tank_wall_ymax" type="box" pos=".65 .1525 .80" size=".15 .0025 .10" rgba=".60 .80 .90 .18" contype="4" conaffinity="3" />
+    
+    <geom name="oil_volume" type="box" pos=".65 0 .79" size=".15 .15 .09" rgba=".15 .55 .85 .06" contype="0" conaffinity="0" />
+    <geom name="tank_stand_top" type="box" pos=".65 0 .6825" size=".18 .18 .0125" rgba=".22 .24 .27 1" contype="4" conaffinity="3" />
+    <geom name="tank_stand_leg_0" type="box" pos="0.5 -0.15 .335" size=".015 .015 .335" rgba=".22 .24 .27 1" contype="4" conaffinity="3" />
+    <geom name="tank_stand_leg_1" type="box" pos="0.5 0.15 .335" size=".015 .015 .335" rgba=".22 .24 .27 1" contype="4" conaffinity="3" />
+    <geom name="tank_stand_leg_2" type="box" pos="0.8 -0.15 .335" size=".015 .015 .335" rgba=".22 .24 .27 1" contype="4" conaffinity="3" />
+    <geom name="tank_stand_leg_3" type="box" pos="0.8 0.15 .335" size=".015 .015 .335" rgba=".22 .24 .27 1" contype="4" conaffinity="3" />
+
+    
+    <light name="sun" directional="true" pos="1.5 -1.5 3.5" dir="-0.35 0.30 -1" diffuse="0.85 0.85 0.85" specular="0.30 0.30 0.30" castshadow="true" />
+
+    
+    <light name="fill_light" directional="false" pos="-1.5 1.0 2.2" diffuse="0.35 0.35 0.38" specular="0.08 0.08 0.08" castshadow="false" />
+
+    <camera name="overview" pos="2.2 -2.2 1.55" xyaxes="0.707107 0.707107 0 -0.408248 0.408248 0.816497" />
+    <body name="base_link" pos="0 0 0" quat="1 0 0 0">
+      <inertial pos="-2.7535e-06 0.00054789 0.02299" mass="1.2345" fullinertia="0.0029215 0.0028546 0.0051176 2.2046e-07 -3.4773e-08 -7.6362e-06" />
+      <geom name="base_link_visual" mesh="base_link_mesh" material="base_link_mat" contype="2" conaffinity="4" />
+      <body name="shoulder_Link" gravcomp="1" pos="0 0 0.1632" quat="-3.67320510335e-06 0 -4.3569e-17 0.999999999993">
+        <inertial pos="0.00029287 0.14173 0.54281" mass="10.994" fullinertia="2.2088 2.1473 0.07998 -0.00043922 -0.0025417 -0.049088" />
+        <joint name="shoulder_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04" />
+        <geom name="shoulder_Link_visual" mesh="shoulder_Link_mesh" material="shoulder_Link_mat" contype="2" conaffinity="4" />
+        <body name="upperArm_Link" gravcomp="1" pos="0 0.2013 0" quat="0.499998163397 -0.499999999997 -0.499999999997 -0.500001836603">
+          <inertial pos="0.31908 -3.7071e-06 -0.0042956" mass="5.3139" fullinertia="0.0095171 0.11411 0.11411 7.2849e-06 -6.7014e-06 -1.1529e-06" />
+          <joint name="upperArm_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04" />
+          <geom name="upperArm_Link_visual" mesh="upperArm_Link_mesh" material="upperArm_Link_mat" contype="2" conaffinity="4" />
+          <body name="foreArm_Link" gravcomp="1" pos="0.647 0 0" quat="-3.67320510335e-06 0.999999999993 -4.21639e-17 2.29772e-17">
+            <inertial pos="0.24431 6.6794e-06 0.12549" mass="3.1022" fullinertia="0.0027288 0.097825 0.097866 -6.2713e-06 -0.0018082 3.5731e-07" />
+            <joint name="foreArm_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04" />
+            <geom name="foreArm_Link_visual" mesh="foreArm_Link_mesh" material="foreArm_Link_mat" contype="2" conaffinity="4" />
+            <body name="wrist1_Link" gravcomp="1" pos="0.6005 0 0" quat="-2.59734346646e-06 -0.707105482506 -0.707108079855 -2.59735300806e-06">
+              <inertial pos="5.2305e-07 0.00026581 -0.0027894" mass="0.57981" fullinertia="0.00088336 0.00046118 0.00085336 -6.425e-09 5.1594e-09 -1.0734e-06" />
+              <joint name="wrist1_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04" />
+              <geom name="wrist1_Link_visual" mesh="wrist1_Link_mesh" material="wrist1_Link_mat" contype="2" conaffinity="4" />
+              <body name="wrist2_Link" gravcomp="1" pos="0 0.1025 0" quat="0.707105482511 -0.707108079859 1.17531e-17 -5.12221e-16">
+                <inertial pos="-5.2305e-07 -0.00026581 -0.0027894" mass="0.57981" fullinertia="0.00088336 0.00046118 0.00085336 -6.4251e-09 -5.1594e-09 1.0734e-06" />
+                <joint name="wrist2_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04" />
+                <geom name="wrist2_Link_visual" mesh="wrist2_Link_mesh" material="wrist2_Link_mat" contype="2" conaffinity="4" />
+                <body name="wrist3_Link" gravcomp="1" pos="0 -0.094 0" quat="0.707105482511 0.707108079859 2.37882e-16 2.37881e-16">
+                  <inertial pos="-2.2127e-09 0.00023722 -0.018629" mass="0.13669" fullinertia="6.0946e-05 5.9501e-05 9.6981e-05 9.3663e-12 -1.3841e-12 1.9944e-07" />
+                  <joint name="wrist3_joint" pos="0 0 0" axis="0 0 1" range="-3.04 3.04" />
+                  <geom name="wrist3_Link_visual" mesh="wrist3_Link_mesh" material="wrist3_Link_mat" contype="2" conaffinity="4" />
+                  <site name="wrist3_frame_site" pos="0 0 0" size="0.006" rgba="1 0.2 0.2 1" />
+
+                  
+                  <site name="aubo_tool0_provisional" pos="0 0 0" size="0.004" rgba="0.2 1 0.2 1" />
+
+                  
+                  <body name="DEMA" pos="0 0 0" euler="0 0 0">
+
+                    
+
+                    <site name="DEMA_mount_origin" pos="0 0 0" size="0.005" rgba="0.1 1 0.1 1" />
+
+                    
+                    <geom name="DEMA_mount_plate" type="box" pos="0 0 0.006" size="0.085 0.045 0.006" material="dema_mount_mat" mass="0" contype="2" conaffinity="4" />
+
+                    
+                    <site name="LCS_origin" pos="0 0 0.125" size="0.005" rgba="0.1 1 0.1 1" />
+
+                    <site name="LCS_z" pos="0 0 0.175" size="0.003" rgba="0.1 0.8 1 1" />
+
+                    
+                    <site name="ROI_30mm" pos="0 0 0.155" size="0.004" rgba="1 0.2 1 1" />
+
+                    
+                    <body name="EM1" pos="0.0475 0 0.012" euler="0 -0.261799387799149 0">
+
+                      
+                      <geom name="EM1_core" type="cylinder" pos="0 0 0.0625" size="0.011 0.0625" material="dema_core_mat" mass="0" contype="2" conaffinity="4" />
+
+                      
+                      <geom name="EM1_frame" type="cylinder" pos="0 0 0.041992" size="0.013 0.041992" material="dema_frame_mat" mass="0" contype="2" conaffinity="4" />
+
+                      
+
+                      
+
+                      
+                      <geom name="EM1_coil_step3" type="cylinder" pos="0 0 0.016794" size="0.0355 0.016794228634060" material="dema_copper_mat" mass="0" contype="2" conaffinity="4" />
+
+                      
+                      <geom name="EM1_coil_step2" type="cylinder" pos="0 0 0.044784" size="0.0265 0.011196152422706" material="dema_copper_mat" mass="0" contype="2" conaffinity="4" />
+
+                      
+                      <geom name="EM1_coil_step1" type="cylinder" pos="0 0 0.064377" size="0.0205 0.013995190528384" material="dema_copper_mat" mass="0" contype="2" conaffinity="4" />
+
+                      
+                      <site name="EM1_root" pos="0 0 0" size="0.003" rgba="1 0.7 0.1 1" />
+
+                      <site name="EM1_center" pos="0 0 0.0625" size="0.0035" rgba="1 0.2 0.2 1" />
+
+                      <site name="EM1_tip" pos="0 0 0.125" size="0.0035" rgba="1 0.5 0.1 1" />
+
+                      <site name="EM1_axis" pos="0 0 0.100" size="0.0025" rgba="1 0 0 1" />
+                    </body>
+
+                    
+                    <body name="EM2" pos="-0.0475 0 0.012" euler="0 0.261799387799149 0">
+
+                      <geom name="EM2_core" type="cylinder" pos="0 0 0.0625" size="0.011 0.0625" material="dema_core_mat" mass="0" contype="2" conaffinity="4" />
+
+                      <geom name="EM2_frame" type="cylinder" pos="0 0 0.041992" size="0.013 0.041992" material="dema_frame_mat" mass="0" contype="2" conaffinity="4" />
+
+                      <geom name="EM2_coil_step3" type="cylinder" pos="0 0 0.016794" size="0.0355 0.016794228634060" material="dema_copper_mat" mass="0" contype="2" conaffinity="4" />
+
+                      <geom name="EM2_coil_step2" type="cylinder" pos="0 0 0.044784" size="0.0265 0.011196152422706" material="dema_copper_mat" mass="0" contype="2" conaffinity="4" />
+
+                      <geom name="EM2_coil_step1" type="cylinder" pos="0 0 0.064377" size="0.0205 0.013995190528384" material="dema_copper_mat" mass="0" contype="2" conaffinity="4" />
+
+                      <site name="EM2_root" pos="0 0 0" size="0.003" rgba="1 0.7 0.1 1" />
+
+                      <site name="EM2_center" pos="0 0 0.0625" size="0.0035" rgba="1 0.2 0.2 1" />
+
+                      <site name="EM2_tip" pos="0 0 0.125" size="0.0035" rgba="1 0.5 0.1 1" />
+
+                      <site name="EM2_axis" pos="0 0 0.100" size="0.0025" rgba="0 0.4 1 1" />
+                    </body>
+
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    
+    <body name="FLUID_VISUAL" mocap="true" pos="0 0 -10">
+      <geom name="FLUID_VISUAL_BOX" type="box" size="0.12 0.12 0.10" material="fluid_visual_mat" mass="0" contype="0" conaffinity="0" group="4" />
+    </body>
+
+
+    
+    <body name="MCE" pos="0.30 0 0.50" quat="0.7071067812 0 0.7071067812 0">
+
+      <freejoint name="MCE_free" />
+
+      
+      <geom name="MCE_shell" type="capsule" size="0.0057000 0.0093000" mass="0.007" material="mce_shell_mat" friction="0.4 0.01 0.001" contype="1" conaffinity="7" />
+
+      
+      <site name="MCE_magnetic_center" pos="0 0 0" size="0.0028" rgba="0.1 0.1 0.1 1" />
+    </body>
+
+
+    
+    <body name="NONMAG_BEAD" pos="0.30 0.04 0.50">
+
+      <freejoint name="NONMAG_BEAD_free" />
+
+      <geom name="NONMAG_BEAD_geom" type="sphere" size="0.0057" mass="0.007" material="nonmag_bead_mat" friction="0.4 0.01 0.001" contype="1" conaffinity="1" />
+
+      <site name="NONMAG_BEAD_center" pos="0 0 0" size="0.0025" rgba="1 0.2 0.2 1" />
+    </body>
+
+  <geom name="path_obstacle_0" type="cylinder" pos="0.6749999999993301 1.7376647506014694e-11 0.7875000000000001" size="0.005 0.08749999999999997" rgba=".75 .20 .12 1" contype="4" conaffinity="3" friction=".4 .01 .001" group="0" /><geom name="path_reference_0" type="capsule" fromto="0.6499999999993301 1.7820120542057938e-11 0.8249999999984661 0.6579999999990463 -0.015999999982321794 0.8249999999997167" size="0.00035" contype="0" conaffinity="0" rgba="0 .8 .3 .8" group="2" mass="0" /><geom name="path_reference_1" type="capsule" fromto="0.6579999999990463 -0.015999999982321794 0.8249999999997167 0.6679999999989399 -0.02199999998249919 0.8250000000004525" size="0.00035" contype="0" conaffinity="0" rgba="0 .8 .3 .8" group="2" mass="0" /><geom name="path_reference_2" type="capsule" fromto="0.6679999999989399 -0.02199999998249919 0.8250000000004525 0.6919999999989045 -0.023999999982924923 0.8250000000014851" size="0.00035" contype="0" conaffinity="0" rgba="0 .8 .3 .8" group="2" mass="0" /><geom name="path_reference_3" type="capsule" fromto="0.6919999999989045 -0.023999999982924923 0.8250000000014851 0.6999999999989754 -0.01999999998306683 0.8250000000015534" size="0.00035" contype="0" conaffinity="0" rgba="0 .8 .3 .8" group="2" mass="0" /><geom name="path_margin_0_0" type="capsule" fromto="0.6969999999993302 1.6986391234296642e-11 0.8250000000002569 0.6968117869495031 -0.002871576211851406 0.8250000000004194" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_1" type="capsule" fromto="0.6968117869495031 -0.002871576211851406 0.8250000000004194 0.6962503681775887 -0.005694018975255771 0.8250000000005648" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_2" type="capsule" fromto="0.6962503681775887 -0.005694018975255771 0.8250000000005648 0.6953253497144292 -0.00841903549501588 0.8250000000006907" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_3" type="capsule" fromto="0.6953253497144292 -0.00841903549501588 0.8250000000006907 0.6940525588823927 -0.010999999982961325 0.8250000000007948" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_4" type="capsule" fromto="0.6940525588823927 -0.010999999982961325 0.8250000000007948 0.6924537734854997 -0.013392751421124819 0.8250000000008753" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_5" type="capsule" fromto="0.6924537734854997 -0.013392751421124819 0.8250000000008753 0.6905563491851583 -0.015556349169003359 0.8250000000009309" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_6" type="capsule" fromto="0.6905563491851583 -0.015556349169003359 0.8250000000009309 0.6883927514372125 -0.017453773469268102 0.8250000000009606" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_7" type="capsule" fromto="0.6883927514372125 -0.017453773469268102 0.8250000000009606 0.6859999999989922 -0.019052558866076135 0.825000000000964" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_8" type="capsule" fromto="0.6859999999989922 -0.019052558866076135 0.825000000000964 0.6834190355110016 -0.020325349698021012 0.8250000000009409" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_9" type="capsule" fromto="0.6834190355110016 -0.020325349698021012 0.8250000000009409 0.6806940189912086 -0.021250368161083867 0.8250000000008918" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_10" type="capsule" fromto="0.6806940189912086 -0.021250368161083867 0.8250000000008918 0.6778715762277844 -0.021811786932898133 0.8250000000008174" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_11" type="capsule" fromto="0.6778715762277844 -0.021811786932898133 0.8250000000008174 0.6749999999989399 -0.021999999982623364 0.8250000000007192" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_12" type="capsule" fromto="0.6749999999989399 -0.021999999982623364 0.8250000000007192 0.6721284237701021 -0.021811786932796253 0.8250000000005986" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_13" type="capsule" fromto="0.6721284237701021 -0.021811786932796253 0.8250000000005986 0.6693059810066978 -0.02125036816088186 0.8250000000004579" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_14" type="capsule" fromto="0.6693059810066978 -0.02125036816088186 0.8250000000004579 0.6665809644869376 -0.020325349697722327 0.8250000000002994" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_15" type="capsule" fromto="0.6665809644869376 -0.020325349697722327 0.8250000000002994 0.6639999999989922 -0.019052558865685885 0.8250000000001259" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_16" type="capsule" fromto="0.6639999999989922 -0.019052558865685885 0.8250000000001259 0.6616072485608288 -0.017453773468792965 0.8249999999999401" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_17" type="capsule" fromto="0.6616072485608288 -0.017453773468792965 0.8249999999999401 0.6594436508129502 -0.015556349168451451 0.8249999999997455" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_18" type="capsule" fromto="0.6594436508129502 -0.015556349168451451 0.8249999999997455 0.6575462265126855 -0.013392751420505604 0.8249999999995453" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_19" type="capsule" fromto="0.6575462265126855 -0.013392751420505604 0.8249999999995453 0.6559474411158774 -0.010999999982285392 0.8249999999993429" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_20" type="capsule" fromto="0.6559474411158774 -0.010999999982285392 0.8249999999993429 0.6546746502839325 -0.008419035494294782 0.824999999999142" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_21" type="capsule" fromto="0.6546746502839325 -0.008419035494294782 0.824999999999142 0.6537496318208696 -0.00569401897450186 0.8249999999989456" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_22" type="capsule" fromto="0.6537496318208696 -0.00569401897450186 0.8249999999989456 0.6531882130490554 -0.0028715762110775806 0.8249999999987574" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_23" type="capsule" fromto="0.6531882130490554 -0.0028715762110775806 0.8249999999987574 0.6529999999993301 1.776690108350979e-11 0.8249999999985804" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_24" type="capsule" fromto="0.6529999999993301 1.776690108350979e-11 0.8249999999985804 0.6531882130491573 0.0028715762466046952 0.8249999999984179" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_25" type="capsule" fromto="0.6531882130491573 0.0028715762466046952 0.8249999999984179 0.6537496318210717 0.005694019010009056 0.8249999999982723" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_26" type="capsule" fromto="0.6537496318210717 0.005694019010009056 0.8249999999982723 0.6546746502842312 0.008419035529769164 0.8249999999981465" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_27" type="capsule" fromto="0.6546746502842312 0.008419035529769164 0.8249999999981465 0.6559474411162677 0.01100000001771462 0.8249999999980424" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_28" type="capsule" fromto="0.6559474411162677 0.01100000001771462 0.8249999999980424 0.6575462265131605 0.013392751455878113 0.8249999999979619" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_29" type="capsule" fromto="0.6575462265131605 0.013392751455878113 0.8249999999979619 0.6594436508135021 0.015556349203756646 0.8249999999979063" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_30" type="capsule" fromto="0.6594436508135021 0.015556349203756646 0.8249999999979063 0.6616072485614479 0.017453773504021396 0.8249999999978765" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_31" type="capsule" fromto="0.6616072485614479 0.017453773504021396 0.8249999999978765 0.6639999999996681 0.01905255890082943 0.8249999999978732" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_32" type="capsule" fromto="0.6639999999996681 0.01905255890082943 0.8249999999978732 0.6665809644876587 0.02032534973277431 0.8249999999978963" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_33" type="capsule" fromto="0.6665809644876587 0.02032534973277431 0.8249999999978963 0.6693059810074516 0.021250368195837165 0.8249999999979455" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_34" type="capsule" fromto="0.6693059810074516 0.021250368195837165 0.8249999999979455 0.6721284237708759 0.021811786967651424 0.8249999999980198" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_35" type="capsule" fromto="0.6721284237708759 0.021811786967651424 0.8249999999980198 0.6749999999997204 0.022000000017376658 0.8249999999981181" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_36" type="capsule" fromto="0.6749999999997204 0.022000000017376658 0.8249999999981181 0.6778715762285582 0.02181178696754955 0.8249999999982386" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_37" type="capsule" fromto="0.6778715762285582 0.02181178696754955 0.8249999999982386 0.6806940189919626 0.02125036819563516 0.8249999999983794" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_38" type="capsule" fromto="0.6806940189919626 0.02125036819563516 0.8249999999983794 0.6834190355117227 0.02032534973247563 0.8249999999985378" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_39" type="capsule" fromto="0.6834190355117227 0.02032534973247563 0.8249999999985378 0.6859999999996681 0.01905255890043919 0.8249999999987114" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_40" type="capsule" fromto="0.6859999999996681 0.01905255890043919 0.8249999999987114 0.6883927514378316 0.017453773503546273 0.8249999999988971" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_41" type="capsule" fromto="0.6883927514378316 0.017453773503546273 0.8249999999988971 0.6905563491857102 0.015556349203204752 0.8249999999990917" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_42" type="capsule" fromto="0.6905563491857102 0.015556349203204752 0.8249999999990917 0.6924537734859749 0.013392751455258905 0.8249999999992919" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_43" type="capsule" fromto="0.6924537734859749 0.013392751455258905 0.8249999999992919 0.6940525588827829 0.011000000017038694 0.8249999999994942" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_44" type="capsule" fromto="0.6940525588827829 0.011000000017038694 0.8249999999994942 0.6953253497147278 0.008419035529048092 0.8249999999996953" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_45" type="capsule" fromto="0.6953253497147278 0.008419035529048092 0.8249999999996953 0.6962503681777906 0.005694019009255166 0.8249999999998916" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_46" type="capsule" fromto="0.6962503681777906 0.005694019009255166 0.8249999999998916 0.6968117869496049 0.002871576245830888 0.8250000000000799" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><geom name="path_margin_0_47" type="capsule" fromto="0.6968117869496049 0.002871576245830888 0.8250000000000799 0.6969999999993302 1.6986396622742557e-11 0.8250000000002569" size="0.00015" contype="0" conaffinity="0" rgba="1 .65 0 .55" group="2" mass="0" /><site name="path_start" type="sphere" size=".0015" pos="0.6499999999993301 1.7820120542057938e-11 0.8249999999984661" rgba="0 .8 .2 1" group="2" /><site name="path_goal" type="sphere" size=".0015" pos="0.6999999999989754 -0.01999999998306683 0.8250000000015534" rgba=".7 0 .9 1" group="2" /></worldbody>
+
+  
+
+  
+
+  <actuator>
+    <position name="J1_position" joint="shoulder_joint" kp="80" kv="18" ctrlrange="-3.04 3.04" />
+
+    <position name="J2_position" joint="upperArm_joint" kp="80" kv="18" ctrlrange="-3.04 3.04" />
+
+    <position name="J3_position" joint="foreArm_joint" kp="60" kv="14" ctrlrange="-3.04 3.04" />
+
+    <position name="J4_position" joint="wrist1_joint" kp="25" kv="6" ctrlrange="-3.04 3.04" />
+
+    <position name="J5_position" joint="wrist2_joint" kp="20" kv="5" ctrlrange="-3.04 3.04" />
+
+    <position name="J6_position" joint="wrist3_joint" kp="15" kv="4" ctrlrange="-3.04 3.04" />
+  </actuator>
+
+
+</mujoco>

@@ -1,0 +1,31 @@
+{
+  "clean": {
+    "success": true,
+    "goal_held": true,
+    "goal_hold_s": 4.998999999881789,
+    "final_xy_error_mm": 9.67852464620788e-05,
+    "min_obstacle_envelope_clearance_mm": 3.024265929660242,
+    "margin_violation_physics_steps": 0,
+    "notes": "Success evaluates XY goal and conservative obstacle margin; Z quality is reported separately. Sampled checks, not continuous collision certification.",
+    "xy_rms_mm": 0.048852180426978184,
+    "fixed_z_rms_mm": 0.0024378850360792684
+  },
+  "clean_status": "duration completed",
+  "clean_simulation_time_s": 361.24999999836945,
+  "mujoco_version": "3.11.0",
+  "geometry_tests": "4 passed",
+  "cylinder_only_regression": "same path and timings",
+  "noise_all_seed42_tau10_delay10": {
+    "success": false,
+    "goal_held": true,
+    "goal_hold_s": 4.998999999881789,
+    "final_xy_error_mm": 0.03960650917615053,
+    "min_obstacle_envelope_clearance_mm": 2.9861095599334533,
+    "margin_violation_physics_steps": 795,
+    "notes": "Success evaluates XY goal and conservative obstacle margin; Z quality is reported separately. Sampled checks, not continuous collision certification.",
+    "xy_rms_mm": 0.07127681035992973,
+    "fixed_z_rms_mm": 1.0510985649047997
+  },
+  "noise_status": "duration completed",
+  "noise_simulation_time_s": 361.24999999836945
+}

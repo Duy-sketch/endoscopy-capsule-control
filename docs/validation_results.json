@@ -1,0 +1,37 @@
+{
+  "clean": {
+    "success": true,
+    "goal_held": true,
+    "goal_hold_s": 4.998999999988349,
+    "final_xy_error_mm": 0.00013325819078400709,
+    "min_obstacle_envelope_clearance_mm": 2.1202579150558734,
+    "margin_violation_physics_steps": 0,
+    "notes": "Success evaluates XY goal and conservative obstacle margin; Z quality is reported separately. Sampled checks, not continuous collision certification.",
+    "xy_rms_mm": 0.13514779216288844,
+    "fixed_z_rms_mm": 0.02282359428429406
+  },
+  "noise": {
+    "success": true,
+    "goal_held": true,
+    "goal_hold_s": 4.998999999988349,
+    "final_xy_error_mm": 0.03965251639491402,
+    "min_obstacle_envelope_clearance_mm": 2.134826782204417,
+    "margin_violation_physics_steps": 0,
+    "notes": "Success evaluates XY goal and conservative obstacle margin; Z quality is reported separately. Sampled checks, not continuous collision certification.",
+    "xy_rms_mm": 0.14601845873978425,
+    "fixed_z_rms_mm": 1.0254165634508936
+  },
+  "tests": [
+    "legacy follower CSV exact match",
+    "invalid goal rejected",
+    "blocked map rejected",
+    "segment-circle crossings",
+    "speed/acceleration limits"
+  ],
+  "noise_case": {
+    "noise": "all",
+    "seed": 42,
+    "current_tau_ms": 10,
+    "localization_delay_ms": 10
+  }
+}

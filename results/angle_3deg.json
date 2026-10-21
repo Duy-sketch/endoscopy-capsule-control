@@ -1,0 +1,30 @@
+{
+  "status": "duration completed",
+  "noise": [
+    "current",
+    "localization",
+    "robot"
+  ],
+  "seed": 42,
+  "angle_target_deg": 3.0,
+  "height_ref_world_m": 0.8249999999984661,
+  "current_tau_ms": 10.0,
+  "localization_delay_ms": 10.0,
+  "current_range_A": [
+    -20.0,
+    20.0
+  ],
+  "model_path": "F:\\OneDrive - Hanoi University of Science and Technology\\Documents\\RL in capsule\\endoscopy_capsule_control\\src\\endoscopy_capsule_control\\models\\aubo_i10.xml",
+  "control": "measured planar angle + world-height PID; free XYZ",
+  "warning": "Not hardware calibrated. Angle/Z tracking does not establish XY equilibrium.",
+  "final_angle_deg": 3.2584818322989753,
+  "final_height_error_mm": -2.3756271789433514,
+  "final_xy_mm": [
+    30.746131156818873,
+    -0.02343330827496863
+  ],
+  "infeasible_fraction": 0.0,
+  "max_out_of_plane_fraction": 0.00027075966075624066,
+  "tail_angle_rms_deg": 0.27509059419878,
+  "tail_height_rms_mm": 1.1933143133762134
+}

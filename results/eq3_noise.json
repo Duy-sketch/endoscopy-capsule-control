@@ -1,0 +1,37 @@
+{
+  "status": "duration completed",
+  "equilibrium": {
+    "angle_deg": 3.0,
+    "x_mm": 31.399442209553374,
+    "z_lcs_mm": 100.0,
+    "I1_A": 8.933867506749229,
+    "I2_A": -2.306175840777156,
+    "force_residual_N": 3.175862685565261e-12,
+    "torque_residual_Nm": 5.421010862427522e-20,
+    "aligned_B_T": 0.041817936650555936,
+    "id": 2
+  },
+  "noise": [
+    "current",
+    "localization",
+    "robot"
+  ],
+  "seed": 42,
+  "fixed_ff": false,
+  "current_tau_ms": 10.0,
+  "localization_delay_ms": 10.0,
+  "model_path": "F:\\OneDrive - Hanoi University of Science and Technology\\Documents\\RL in capsule\\endoscopy_capsule_control\\src\\endoscopy_capsule_control\\models\\aubo_i10.xml",
+  "roi_mm": 70.0,
+  "kick_x_mm": 1.0,
+  "kick_y_mm": 0.0,
+  "kick_angle_deg": 0.0,
+  "warning": "One finite recovery test is not proof of stability. Nominal fully submerged equilibrium; no centre-to-target trajectory.",
+  "final_x_mm": 31.245704360660607,
+  "final_angle_deg": 3.0677006236508624,
+  "tail_x_error_rms_mm": 1.06610070247061,
+  "tail_y_rms_mm": 0.02343332363192389,
+  "tail_height_rms_mm": 1.4207434389408937,
+  "tail_angle_rms_deg": 0.2860390840918712,
+  "final_speed_mm_s": 7.421016946930617,
+  "min_submerged_fraction": 1.0
+}
